@@ -12,6 +12,7 @@ export interface Player {
   sector: string;
   gameScore: number;
   quizScore: number;
+  vofScore: number;
   totalScore: number;
   createdAt: string;
   updatedAt: string;
@@ -40,6 +41,21 @@ export function isValidCorporateEmail(email: string): boolean {
   return !BLOCKED_DOMAINS.some((domain) => lowerEmail.endsWith(domain));
 }
 
+function mapRow(row: any): Player {
+  return {
+    id: row.id,
+    email: row.email,
+    name: row.nome,
+    sector: row.setor,
+    gameScore: row.pontuacao_jogo ?? 0,
+    quizScore: row.pontuacao_quiz ?? 0,
+    vofScore: row.pontuacao_vof ?? 0,
+    totalScore: row.pontuacao_total ?? 0,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
 // Obter todos os jogadores
 export async function getAllPlayers(): Promise<Player[]> {
   try {
@@ -53,17 +69,7 @@ export async function getAllPlayers(): Promise<Player[]> {
       return [];
     }
 
-    return (data || []).map((row: any) => ({
-      id: row.id,
-      email: row.email,
-      name: row.nome,
-      sector: row.setor,
-      gameScore: row.pontuacao_jogo,
-      quizScore: row.pontuacao_quiz,
-      totalScore: row.pontuacao_total,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    }));
+    return (data || []).map(mapRow);
   } catch (error) {
     console.error("Erro na função getAllPlayers:", error);
     return [];
@@ -79,21 +85,8 @@ export async function getPlayerByEmail(email: string): Promise<Player | null> {
       .eq("email", email.toLowerCase().trim())
       .single();
 
-    if (error || !data) {
-      return null;
-    }
-
-    return {
-      id: data.id,
-      email: data.email,
-      name: data.nome,
-      sector: data.setor,
-      gameScore: data.pontuacao_jogo,
-      quizScore: data.pontuacao_quiz,
-      totalScore: data.pontuacao_total,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-    };
+    if (error || !data) return null;
+    return mapRow(data);
   } catch (error) {
     console.error("Erro na função getPlayerByEmail:", error);
     return null;
@@ -116,6 +109,7 @@ export async function createPlayer(
           setor: sector,
           pontuacao_jogo: 0,
           pontuacao_quiz: 0,
+          pontuacao_vof: 0,
           pontuacao_total: 0,
         },
       ])
@@ -123,25 +117,12 @@ export async function createPlayer(
       .single();
 
     if (error) {
-      // Email já cadastrado — buscar jogador existente
-      if (error.code === "23505") {
-        return getPlayerByEmail(email);
-      }
+      if (error.code === "23505") return getPlayerByEmail(email);
       console.error("Erro ao criar jogador:", error.code, error.message);
       return null;
     }
 
-    return {
-      id: data.id,
-      email: data.email,
-      name: data.nome,
-      sector: data.setor,
-      gameScore: data.pontuacao_jogo,
-      quizScore: data.pontuacao_quiz,
-      totalScore: data.pontuacao_total,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-    };
+    return mapRow(data);
   } catch (error) {
     console.error("Erro na função createPlayer:", error);
     return null;
@@ -154,29 +135,15 @@ export async function getOrCreatePlayer(
   sector: string
 ): Promise<Player | null> {
   try {
-    // Tentar buscar jogador existente
-    const { data: existing, error: selectError } = await supabase
+    const { data: existing } = await supabase
       .from("jogadores")
       .select("*")
       .eq("nome", name)
       .eq("setor", sector)
       .single();
 
-    if (existing) {
-      return {
-        id: existing.id,
-        email: existing.email,
-        name: existing.nome,
-        sector: existing.setor,
-        gameScore: existing.pontuacao_jogo,
-        quizScore: existing.pontuacao_quiz,
-        totalScore: existing.pontuacao_total,
-        createdAt: existing.created_at,
-        updatedAt: existing.updated_at,
-      };
-    }
+    if (existing) return mapRow(existing);
 
-    // Se não existe, criar novo jogador
     const { data: newPlayer, error: insertError } = await supabase
       .from("jogadores")
       .insert([
@@ -185,6 +152,7 @@ export async function getOrCreatePlayer(
           setor: sector,
           pontuacao_jogo: 0,
           pontuacao_quiz: 0,
+          pontuacao_vof: 0,
           pontuacao_total: 0,
         },
       ])
@@ -196,17 +164,7 @@ export async function getOrCreatePlayer(
       return null;
     }
 
-    return {
-      id: newPlayer.id,
-      email: newPlayer.email,
-      name: newPlayer.nome,
-      sector: newPlayer.setor,
-      gameScore: newPlayer.pontuacao_jogo,
-      quizScore: newPlayer.pontuacao_quiz,
-      totalScore: newPlayer.pontuacao_total,
-      createdAt: newPlayer.created_at,
-      updatedAt: newPlayer.updated_at,
-    };
+    return mapRow(newPlayer);
   } catch (error) {
     console.error("Erro na função getOrCreatePlayer:", error);
     return null;
@@ -219,49 +177,26 @@ export async function updateGameScore(
   score: number
 ): Promise<Player | null> {
   try {
-    // Buscar jogador atual
     const { data: player, error: selectError } = await supabase
       .from("jogadores")
       .select("*")
       .eq("id", playerId)
       .single();
 
-    if (selectError || !player) {
-      console.error("Erro ao buscar jogador:", selectError);
-      return null;
-    }
+    if (selectError || !player) return null;
 
-    // Manter a maior pontuação
-    const newGameScore = Math.max(score, player.pontuacao_jogo);
-    const newTotalScore = newGameScore + player.pontuacao_quiz;
+    const newGameScore = Math.max(score, player.pontuacao_jogo ?? 0);
+    const newTotal = newGameScore + (player.pontuacao_quiz ?? 0) + (player.pontuacao_vof ?? 0);
 
     const { data: updated, error: updateError } = await supabase
       .from("jogadores")
-      .update({
-        pontuacao_jogo: newGameScore,
-        pontuacao_total: newTotalScore,
-        updated_at: new Date().toISOString(),
-      })
+      .update({ pontuacao_jogo: newGameScore, pontuacao_total: newTotal, updated_at: new Date().toISOString() })
       .eq("id", playerId)
       .select()
       .single();
 
-    if (updateError) {
-      console.error("Erro ao atualizar pontuação do jogo:", updateError);
-      return null;
-    }
-
-    return {
-      id: updated.id,
-      email: updated.email,
-      name: updated.nome,
-      sector: updated.setor,
-      gameScore: updated.pontuacao_jogo,
-      quizScore: updated.pontuacao_quiz,
-      totalScore: updated.pontuacao_total,
-      createdAt: updated.created_at,
-      updatedAt: updated.updated_at,
-    };
+    if (updateError) { console.error("Erro ao atualizar pontuação do jogo:", updateError); return null; }
+    return mapRow(updated);
   } catch (error) {
     console.error("Erro na função updateGameScore:", error);
     return null;
@@ -274,51 +209,60 @@ export async function updateQuizScore(
   score: number
 ): Promise<Player | null> {
   try {
-    // Buscar jogador atual
     const { data: player, error: selectError } = await supabase
       .from("jogadores")
       .select("*")
       .eq("id", playerId)
       .single();
 
-    if (selectError || !player) {
-      console.error("Erro ao buscar jogador:", selectError);
-      return null;
-    }
+    if (selectError || !player) return null;
 
-    // Manter a maior pontuação
-    const newQuizScore = Math.max(score, player.pontuacao_quiz);
-    const newTotalScore = player.pontuacao_jogo + newQuizScore;
+    const newQuizScore = Math.max(score, player.pontuacao_quiz ?? 0);
+    const newTotal = (player.pontuacao_jogo ?? 0) + newQuizScore + (player.pontuacao_vof ?? 0);
 
     const { data: updated, error: updateError } = await supabase
       .from("jogadores")
-      .update({
-        pontuacao_quiz: newQuizScore,
-        pontuacao_total: newTotalScore,
-        updated_at: new Date().toISOString(),
-      })
+      .update({ pontuacao_quiz: newQuizScore, pontuacao_total: newTotal, updated_at: new Date().toISOString() })
       .eq("id", playerId)
       .select()
       .single();
 
-    if (updateError) {
-      console.error("Erro ao atualizar pontuação do quiz:", updateError);
-      return null;
-    }
-
-    return {
-      id: updated.id,
-      email: updated.email,
-      name: updated.nome,
-      sector: updated.setor,
-      gameScore: updated.pontuacao_jogo,
-      quizScore: updated.pontuacao_quiz,
-      totalScore: updated.pontuacao_total,
-      createdAt: updated.created_at,
-      updatedAt: updated.updated_at,
-    };
+    if (updateError) { console.error("Erro ao atualizar pontuação do quiz:", updateError); return null; }
+    return mapRow(updated);
   } catch (error) {
     console.error("Erro na função updateQuizScore:", error);
+    return null;
+  }
+}
+
+// Atualizar pontuação do V ou F (manter a maior)
+export async function updateVofScore(
+  playerId: number,
+  score: number
+): Promise<Player | null> {
+  try {
+    const { data: player, error: selectError } = await supabase
+      .from("jogadores")
+      .select("*")
+      .eq("id", playerId)
+      .single();
+
+    if (selectError || !player) return null;
+
+    const newVofScore = Math.max(score, player.pontuacao_vof ?? 0);
+    const newTotal = (player.pontuacao_jogo ?? 0) + (player.pontuacao_quiz ?? 0) + newVofScore;
+
+    const { data: updated, error: updateError } = await supabase
+      .from("jogadores")
+      .update({ pontuacao_vof: newVofScore, pontuacao_total: newTotal, updated_at: new Date().toISOString() })
+      .eq("id", playerId)
+      .select()
+      .single();
+
+    if (updateError) { console.error("Erro ao atualizar pontuação do V ou F:", updateError); return null; }
+    return mapRow(updated);
+  } catch (error) {
+    console.error("Erro na função updateVofScore:", error);
     return null;
   }
 }
@@ -348,22 +292,8 @@ export async function getPlayer(playerId: number): Promise<Player | null> {
       .eq("id", playerId)
       .single();
 
-    if (error || !data) {
-      console.error("Erro ao buscar jogador:", error);
-      return null;
-    }
-
-    return {
-      id: data.id,
-      email: data.email,
-      name: data.nome,
-      sector: data.setor,
-      gameScore: data.pontuacao_jogo,
-      quizScore: data.pontuacao_quiz,
-      totalScore: data.pontuacao_total,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-    };
+    if (error || !data) return null;
+    return mapRow(data);
   } catch (error) {
     console.error("Erro na função getPlayer:", error);
     return null;

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import TrueOrFalseGame from "./TrueOrFalseGame";
 import { getAllPlayers, getOrCreatePlayer, updateGameScore, updateQuizScore, getRanking, getPlayerRank, Player, getPlayerByEmail, createPlayer, isValidCorporateEmail } from "@/lib/database";
 import { getPlayerRank as getPlayerRankFunc } from "@/lib/database";
 
@@ -11,8 +12,8 @@ const TILE_SIZE = 50;
 const PLAYER_SIZE = 40;
 const COLS = 9;
 const VISIBLE_ROWS = 14;
-const PLAYER_Y_OFFSET = 10;
-const MAX_ROWS = 20; // Missão: atravessar 20 ruas
+const PLAYER_Y_OFFSET = 2; // jogador próximo à base, estrada à frente aparece acima
+const MAX_ROWS = 40; // Missão: atravessar 40 ruas
 const MAX_LIVES = 5;
 
 const SAFETY_MESSAGES = [
@@ -104,7 +105,7 @@ const QUIZ_QUESTIONS = [
 ];
 
 type LaneType = "grass" | "road" | "crosswalk";
-type ItemType = "helmet" | "sign" | "seatbelt" | "traffic_light" | "crosswalk" | "star";
+type ItemType = "coin";
 
 interface Lane {
   type: LaneType;
@@ -142,68 +143,66 @@ function generateLane(row: number, difficulty: number): Lane {
   const rand = Math.random();
   let type: LaneType;
 
-  if (row % 4 === 0) {
+  // Zonas seguras ficam mais raras conforme avança
+  const crosswalkInterval = difficulty < 1 ? 4 : difficulty < 2 ? 6 : 8;
+  const grassChance = Math.max(0.06, 0.28 - difficulty * 0.07);
+
+  if (row % crosswalkInterval === 0) {
     type = "crosswalk";
-  } else if (rand < 0.25) {
+  } else if (rand < grassChance) {
     type = "grass";
   } else {
     type = "road";
   }
 
-  const baseSpeed = 1 + difficulty * 0.4;
-  const speed = type === "road" ? baseSpeed + Math.random() * 2 : 0;
+  // Velocidade base cresce com dificuldade; faixa de random estreita para mais previsibilidade
+  const baseSpeed = 0.5 + difficulty * 0.6;
+  const speed = type === "road" ? baseSpeed + Math.random() * (0.8 + difficulty * 0.15) : 0;
   const direction = Math.random() > 0.5 ? 1 : -1;
 
   const vehicles: Vehicle[] = [];
   if (type === "road") {
-    const numVehicles = Math.max(1, 1 + Math.floor(difficulty * 0.8) + (Math.random() > 0.5 ? 1 : 0));
-    const spacing = (COLS * TILE_SIZE + 200) / numVehicles;
+    // Mais veículos conforme dificuldade
+    const minVehicles = 1 + Math.floor(difficulty * 0.7);
+    const maxVehicles = 2 + Math.floor(difficulty * 1.4);
+    const numVehicles = minVehicles + Math.floor(Math.random() * (maxVehicles - minVehicles + 1));
+
+    const totalWidth = COLS * TILE_SIZE + 200;
+    // Espaçamento diminui com dificuldade (trânsito mais denso)
+    const spacingMult = Math.max(0.45, 1 - difficulty * 0.18);
+    const spacing = (totalWidth / numVehicles) * spacingMult;
+
+    // Multiplicador de velocidade individual cresce com dificuldade
+    const speedMult = 1 + difficulty * 0.35;
+
     for (let i = 0; i < numVehicles; i++) {
-      const rand = Math.random();
+      const r = Math.random();
       let vType: "car" | "truck" | "motorcycle" | "bus" | "cyclist" | "van";
       let width: number;
       let height: number;
       let vSpeed: number;
-      
-      if (rand < 0.4) {
-        vType = "car";
-        width = 50;
-        height = 24;
-        vSpeed = 1.5;
-      } else if (rand < 0.55) {
-        vType = "motorcycle";
-        width = 30;
-        height = 16;
-        vSpeed = 2.5;
-      } else if (rand < 0.65) {
-        vType = "bus";
-        width = 60;
-        height = 28;
-        vSpeed = 0.8;
-      } else if (rand < 0.75) {
-        vType = "truck";
-        width = 70;
-        height = 26;
-        vSpeed = 1.2;
-      } else if (rand < 0.85) {
-        vType = "cyclist";
-        width = 20;
-        height = 16;
-        vSpeed = 1.8;
+
+      if (r < 0.38) {
+        vType = "car"; width = 50; height = 24; vSpeed = 1.5;
+      } else if (r < 0.53) {
+        vType = "motorcycle"; width = 30; height = 16; vSpeed = 2.5;
+      } else if (r < 0.63) {
+        vType = "bus"; width = 60; height = 28; vSpeed = 0.9;
+      } else if (r < 0.73) {
+        vType = "truck"; width = 70; height = 26; vSpeed = 1.2;
+      } else if (r < 0.83) {
+        vType = "cyclist"; width = 20; height = 16; vSpeed = 1.8;
       } else {
-        vType = "van";
-        width = 45;
-        height = 24;
-        vSpeed = 1.4;
+        vType = "van"; width = 45; height = 24; vSpeed = 1.4;
       }
-      
+
       vehicles.push({
-        x: i * spacing + Math.random() * 50,
+        x: i * spacing + Math.random() * 30,
         width,
         height,
         color: VEHICLE_COLORS[Math.floor(Math.random() * VEHICLE_COLORS.length)],
         type: vType,
-        speed: vSpeed,
+        speed: vSpeed * speedMult,
       });
     }
   }
@@ -220,44 +219,15 @@ function generateLane(row: number, difficulty: number): Lane {
   }
 
   const items: Item[] = [];
-  if (type === "road" && Math.random() > 0.6) {
+  if (type === "road" && Math.random() > 0.45) {
     const col = Math.floor(Math.random() * COLS);
-    const rand = Math.random();
-    let itemType: ItemType;
-    let points: number;
-    let tip: string;
-    
-    if (rand < 0.3) {
-      itemType = "helmet";
-      points = 30;
-      tip = "Proteja sua cabeça!";
-    } else if (rand < 0.6) {
-      itemType = "seatbelt";
-      points = 30;
-      tip = "Use sempre o cinto!";
-    } else if (rand < 0.8) {
-      itemType = "traffic_light";
-      points = 25;
-      tip = "Respeite a sinalização!";
-    } else if (rand < 0.95) {
-      itemType = "crosswalk";
-      points = 40;
-      tip = "Use a faixa!";
-    } else {
-      itemType = "star";
-      points = 50;
-      tip = "Trânsito seguro é responsabilidade de todos!";
+    items.push({ x: col * TILE_SIZE + TILE_SIZE / 2, col, row, type: "coin", collected: false, points: 10, tip: "+10 moedas!" });
+
+    // segunda moeda extra em algumas pistas
+    if (Math.random() > 0.5) {
+      const col2 = (col + 3 + Math.floor(Math.random() * 3)) % COLS;
+      items.push({ x: col2 * TILE_SIZE + TILE_SIZE / 2, col: col2, row, type: "coin", collected: false, points: 10, tip: "+10 moedas!" });
     }
-    
-    items.push({
-      x: col * TILE_SIZE + TILE_SIZE / 2,
-      col,
-      row,
-      type: itemType,
-      collected: false,
-      points,
-      tip,
-    });
   }
 
   return { type, speed, direction, vehicles, hasTrees, hasPoles, hasBushes, items };
@@ -265,7 +235,7 @@ function generateLane(row: number, difficulty: number): Lane {
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [gameState, setGameState] = useState<"login" | "menu" | "playing" | "gameover" | "won" | "quiz" | "ranking">("login");
+  const [gameState, setGameState] = useState<"login" | "menu" | "playing" | "gameover" | "won" | "quiz" | "ranking" | "trueorfalse">("login");
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [playerEmail, setPlayerEmail] = useState("");
   const [playerName, setPlayerName] = useState("");
@@ -278,6 +248,7 @@ export default function Home() {
   const [lives, setLives] = useState(MAX_LIVES);
   const [score, setScore] = useState(0);
   const [collectedItems, setCollectedItems] = useState(0);
+  const [coins, setCoins] = useState(0);
   const [safetyMessage, setSafetyMessage] = useState("");
   const [rewardTip, setRewardTip] = useState("");
   const rewardTipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -302,6 +273,7 @@ export default function Home() {
   const scoreRef = useRef(0);
   const maxRowRef = useRef(0);
   const collectedItemsRef = useRef(0);
+  const coinsRef = useRef(0);
   const gameLoopRef = useRef<number>(0);
   const gameActiveRef = useRef(false);
   const lastTimeRef = useRef(0);
@@ -309,6 +281,7 @@ export default function Home() {
   const livesRef = useRef(MAX_LIVES);
   const collisionCooldownRef = useRef(0);
   const currentPlayerRef = useRef<typeof currentPlayer>(null);
+  const explosionRef = useRef<{ frame: number; x: number; y: number } | null>(null);
 
   // Manter ref de currentPlayer sempre atualizada (evita closure stale no game loop)
   useEffect(() => {
@@ -419,6 +392,9 @@ export default function Home() {
     setLives(MAX_LIVES);
     setScore(0);
     setCollectedItems(0);
+    setCoins(0);
+    coinsRef.current = 0;
+    explosionRef.current = null;
 
     const lanes: Lane[] = [];
     for (let i = 0; i < 3; i++) {
@@ -468,8 +444,8 @@ export default function Home() {
       player.animating = false;
     }
 
-    const playerScreenY = Math.max(TILE_SIZE, canvas.height - (PLAYER_Y_OFFSET + 1) * TILE_SIZE);
-    const targetCamera = player.row * TILE_SIZE - playerScreenY;
+    const playerScreenY = canvas.height - (PLAYER_Y_OFFSET + 1) * TILE_SIZE;
+    const targetCamera = playerScreenY + player.row * TILE_SIZE;
     cameraRef.current += (targetCamera - cameraRef.current) * 0.1;
 
     // Atualizar veículos
@@ -505,13 +481,14 @@ export default function Home() {
             }
 
             if (livesRef.current <= 0) {
-              gameActiveRef.current = false;
               const finalScore = scoreRef.current + collectedItemsRef.current * 25;
               setSafetyMessage(SAFETY_MESSAGES[Math.floor(Math.random() * SAFETY_MESSAGES.length)]);
               setScore(finalScore);
               const p = currentPlayerRef.current;
               if (p) updateGameScore(p.id, finalScore).catch(console.error);
-              setTimeout(() => setGameState("gameover"), 500);
+              // iniciar animação de explosão
+              const pyScreen = canvas.height - (PLAYER_Y_OFFSET + 1) * TILE_SIZE + TILE_SIZE / 2;
+              explosionRef.current = { frame: 0, x: player.x, y: pyScreen };
               gameEnded = true;
             } else {
               // Reset posição do jogador após colisão
@@ -536,6 +513,10 @@ export default function Home() {
             scoreRef.current += item.points;
             setCollectedItems(collectedItemsRef.current);
             setScore(scoreRef.current);
+            if (item.type === "coin") {
+              coinsRef.current += 1;
+              setCoins(coinsRef.current);
+            }
             setRewardTip(item.tip);
             if (rewardTipTimeoutRef.current) clearTimeout(rewardTipTimeoutRef.current);
             rewardTipTimeoutRef.current = setTimeout(() => setRewardTip(""), 1000);
@@ -544,9 +525,14 @@ export default function Home() {
       }
     }
 
-    if (gameEnded) return;
+    if (gameEnded) {
+      // rodar loop apenas para a animação de explosão
+      render(ctx, canvas);
+      gameLoopRef.current = requestAnimationFrame(gameLoop);
+      return;
+    }
 
-    // Verificar vitória (20 ruas)
+    // Verificar vitória (40 ruas)
     if (player.row >= MAX_ROWS) {
       gameActiveRef.current = false;
       const finalScore = scoreRef.current + collectedItemsRef.current * 25 + livesRef.current * 100;
@@ -579,12 +565,12 @@ export default function Home() {
     ctx.fillStyle = "#87CEEB";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const startRow = Math.max(0, Math.floor(camera / TILE_SIZE) - 2);
-    const endRow = Math.min(lanes.length, startRow + VISIBLE_ROWS + 4);
+    const startRow = Math.max(0, Math.floor((camera - canvas.height) / TILE_SIZE) - 2);
+    const endRow = Math.min(lanes.length, Math.ceil(camera / TILE_SIZE) + 2);
 
     for (let i = startRow; i < endRow; i++) {
       const lane = lanes[i];
-      const y = i * TILE_SIZE - camera;
+      const y = camera - i * TILE_SIZE;
 
       switch (lane.type) {
         case "grass":
@@ -627,8 +613,52 @@ export default function Home() {
       }
     }
 
-    const playerScreenY = Math.max(TILE_SIZE, canvas.height - (PLAYER_Y_OFFSET + 1) * TILE_SIZE) + TILE_SIZE / 2;
+    const playerScreenY = canvas.height - (PLAYER_Y_OFFSET + 1) * TILE_SIZE + TILE_SIZE / 2;
     drawPlayer(ctx, player.x, playerScreenY);
+
+    // explosão + GAME OVER
+    if (explosionRef.current) {
+      const exp = explosionRef.current;
+      exp.frame++;
+      const f = exp.frame;
+      // partículas
+      for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * Math.PI * 2;
+        const dist = f * 3.5;
+        const alpha = Math.max(0, 1 - f / 45);
+        ctx.fillStyle = `rgba(255,${180 - i * 10},0,${alpha})`;
+        ctx.beginPath();
+        ctx.arc(exp.x + Math.cos(angle) * dist, exp.y + Math.sin(angle) * dist, Math.max(0, 5 - f / 10), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // anéis expansivos
+      for (let r = 0; r < 3; r++) {
+        const delay = r * 8;
+        const rf = Math.max(0, f - delay);
+        const alpha = Math.max(0, 1 - rf / 30);
+        ctx.beginPath();
+        ctx.arc(exp.x, exp.y, rf * 5, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,${220 - r * 60},0,${alpha})`;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+      // texto GAME OVER
+      if (f > 18) {
+        const ta = Math.min(1, (f - 18) / 10);
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = `bold ${Math.min(52, 28 + (f - 18) * 2)}px Arial`;
+        ctx.fillStyle = `rgba(255,30,30,${ta})`;
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+        ctx.restore();
+      }
+      if (f >= 55) {
+        explosionRef.current = null;
+        gameActiveRef.current = false;
+        setGameState("gameover");
+      }
+    }
 
     // HUD removido - agora renderizado em barra HTML no topo
 
@@ -770,59 +800,19 @@ export default function Home() {
     const y = laneY + TILE_SIZE / 2;
     const x = item.x;
 
-    if (item.type === "helmet") {
-      ctx.fillStyle = "#FF6D00";
-      ctx.beginPath();
-      ctx.arc(x, y - 5, 12, 0, Math.PI, true);
-      ctx.fill();
-      ctx.fillRect(x - 12, y - 5, 24, 8);
-      ctx.fillStyle = "#FFB74D";
-      ctx.beginPath();
-      ctx.arc(x, y - 5, 8, 0, Math.PI, true);
-      ctx.fill();
-    } else if (item.type === "seatbelt") {
-      ctx.fillStyle = "#FF6B6B";
-      ctx.fillRect(x - 8, y - 3, 16, 6);
-      ctx.fillStyle = "#FFB3B3";
-      ctx.fillRect(x - 6, y - 2, 12, 4);
-    } else if (item.type === "traffic_light") {
-      ctx.fillStyle = "#333";
-      ctx.fillRect(x - 4, y - 12, 8, 18);
-      ctx.fillStyle = "#66BB6A";
-      ctx.beginPath();
-      ctx.arc(x, y - 3, 3, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (item.type === "crosswalk") {
-      ctx.fillStyle = "#FDD835";
-      ctx.fillRect(x - 8, y - 8, 16, 16);
-      ctx.fillStyle = "#333";
-      for (let i = 0; i < 2; i++) {
-        for (let j = 0; j < 2; j++) {
-          ctx.fillRect(x - 6 + i * 6, y - 6 + j * 6, 4, 4);
-        }
-      }
-    } else if (item.type === "star") {
-      ctx.fillStyle = "#FFD700";
-      ctx.beginPath();
-      for (let i = 0; i < 5; i++) {
-        const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-        const px = x + 8 * Math.cos(angle);
-        const py = y + 8 * Math.sin(angle);
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-      }
-      ctx.closePath();
-      ctx.fill();
-    } else if (item.type === "sign") {
-      ctx.fillStyle = "#E53935";
-      ctx.fillRect(x - 10, y - 14, 20, 20);
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(x - 8, y - 12, 16, 16);
-      ctx.fillStyle = "#E53935";
-      ctx.font = "bold 10px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("P", x, y - 4);
-    }
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.arc(x, y, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#FFA000";
+    ctx.beginPath();
+    ctx.arc(x, y, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#FFD700";
+    ctx.font = "bold 9px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("$", x, y);
   };
 
   const drawPlayer = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
@@ -857,7 +847,7 @@ export default function Home() {
       case "up":
         player.row += 1;
         while (lanesRef.current.length <= player.row + VISIBLE_ROWS) {
-          const difficulty = Math.min(player.row / 8, 3);
+          const difficulty = Math.min(player.row / 4, 3);
           lanesRef.current.push(generateLane(lanesRef.current.length, difficulty));
         }
         const upLane = lanesRef.current[player.row];
@@ -952,8 +942,9 @@ export default function Home() {
       if (!canvas) return;
       const container = canvas.parentElement;
       if (!container) return;
-      canvas.width = Math.min(COLS * TILE_SIZE + 50, container.clientWidth);
-      canvas.height = Math.min((VISIBLE_ROWS + 1) * TILE_SIZE, container.clientHeight - 70);
+      const maxH = window.innerHeight - 70 - 155;
+      canvas.width = Math.min(COLS * TILE_SIZE, container.clientWidth);
+      canvas.height = Math.min((VISIBLE_ROWS + 1) * TILE_SIZE, maxH);
     };
 
     handleResize();
@@ -1019,6 +1010,17 @@ export default function Home() {
     }
     setGameState("ranking");
   };
+
+  const quitGame = useCallback(() => {
+    gameActiveRef.current = false;
+    if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
+    explosionRef.current = null;
+    const finalScore = scoreRef.current + collectedItemsRef.current * 25 + livesRef.current * 100;
+    if (currentPlayerRef.current) {
+      updateGameScore(currentPlayerRef.current.id, finalScore).catch(console.error);
+    }
+    setGameState("menu");
+  }, []);
 
   const finishQuiz = async () => {
     if (currentPlayer) {
@@ -1163,6 +1165,9 @@ export default function Home() {
             <button className="btn-quiz" onClick={startQuiz}>
               QUIZ
             </button>
+            <button className="btn-quiz btn-tf" onClick={() => setGameState("trueorfalse")}>
+              V ou F
+            </button>
             <button className="btn-ranking" onClick={openRanking}>
               RANKING
             </button>
@@ -1186,6 +1191,13 @@ export default function Home() {
   // ============================================================
   // TELA DE RANKING
   // ============================================================
+  // VERDADEIRO OU FALSO RELÂMPAGO
+  // ============================================================
+  if (gameState === "trueorfalse") {
+    return <TrueOrFalseGame player={currentPlayer} onExit={() => setGameState("menu")} />;
+  }
+
+  // ============================================================
   if (gameState === "ranking") {
     return (
       <div className="game-container ranking-screen">
@@ -1195,7 +1207,7 @@ export default function Home() {
           <div className="podium">
             {ranking.length > 1 && (
               <div className="podium-item silver">
-                <div className="medal">2</div>
+                <div className="medal">🥈</div>
                 <div className="name">{ranking[1].name}</div>
                 <div className="score">{ranking[1].totalScore}</div>
               </div>
@@ -1203,7 +1215,7 @@ export default function Home() {
 
             {ranking.length > 0 && (
               <div className="podium-item gold">
-                <div className="medal">1</div>
+                <div className="medal">🥇</div>
                 <div className="name">{ranking[0].name}</div>
                 <div className="score">{ranking[0].totalScore}</div>
               </div>
@@ -1211,7 +1223,7 @@ export default function Home() {
 
             {ranking.length > 2 && (
               <div className="podium-item bronze">
-                <div className="medal">3</div>
+                <div className="medal">🥉</div>
                 <div className="name">{ranking[2].name}</div>
                 <div className="score">{ranking[2].totalScore}</div>
               </div>
@@ -1219,7 +1231,7 @@ export default function Home() {
           </div>
 
           <div className="ranking-list">
-            {ranking.map((player, idx) => (
+            {ranking.slice(0, 5).map((player, idx) => (
               <div key={player.id} className={`ranking-item ${playerRank === idx + 1 ? "highlight" : ""}`}>
                 <span className="rank">#{idx + 1}</span>
                 <span className="name">{player.name}</span>
@@ -1227,6 +1239,17 @@ export default function Home() {
                 <span className="score">{player.totalScore}</span>
               </div>
             ))}
+            {playerRank > 5 && currentPlayer && (
+              <>
+                <div className="ranking-separator">• • •</div>
+                <div className="ranking-item highlight">
+                  <span className="rank">#{playerRank}</span>
+                  <span className="name">{currentPlayer.name}</span>
+                  <span className="sector">{currentPlayer.sector}</span>
+                  <span className="score">{currentPlayer.totalScore}</span>
+                </div>
+              </>
+            )}
           </div>
 
           <button className="btn-back" onClick={() => setGameState("menu")}>
@@ -1322,6 +1345,10 @@ export default function Home() {
               </button>
             </div>
           )}
+
+          <button className="btn-quit-quiz" onClick={finishQuiz}>
+            Sair do Quiz
+          </button>
         </div>
       </div>
     );
@@ -1340,7 +1367,7 @@ export default function Home() {
             <span className="score-value">{score}</span>
           </div>
           <div className="safety-message">
-            <p>Você atravessou com segurança todas as 20 ruas!</p>
+            <p>Você atravessou com segurança todas as {MAX_ROWS} ruas!</p>
           </div>
           <div className="gameover-buttons">
             <button className="btn-play" onClick={initGame}>
@@ -1398,19 +1425,24 @@ export default function Home() {
       <div className="hud-bar">
         <div className="hud-score">
           <div className="hud-label">SCORE</div>
-          <div className="hud-value">{scoreRef.current}</div>
+          <div className="hud-value">{score}</div>
+        </div>
+        <div className="hud-coins">
+          <div className="hud-label">🪙</div>
+          <div className="hud-value hud-coins-value">{coins}</div>
         </div>
         <div className="hud-lives">
           {Array.from({ length: MAX_LIVES }).map((_, i) => (
-            <div key={i} className={`heart ${i < livesRef.current ? "full" : "empty"}`}>
+            <div key={i} className={`heart ${i < lives ? "full" : "empty"}`}>
               ♥
             </div>
           ))}
         </div>
         <div className="hud-progress">
-          <div className="hud-label">PROGRESSO</div>
+          <div className="hud-label">RUAS</div>
           <div className="hud-value">{Math.min(playerRef.current.row, MAX_ROWS)}/{MAX_ROWS}</div>
         </div>
+        <button className="btn-quit-game" onClick={quitGame}>✕ Sair do Jogo</button>
       </div>
       <div className="canvas-wrapper">
         <canvas ref={canvasRef} className="game-canvas" />
