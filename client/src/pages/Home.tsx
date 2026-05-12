@@ -30,8 +30,8 @@ const CROSSWALK_PENALTY_MESSAGES = [
 const SAFETY_MESSAGES = [
   "Cinto de segurança salva vidas.",
   "Se beber, não dirija.",
-  "No trânsito, enxergar o outro é salvar vidas. Maio Amarelo.",
-  "Álcool e direção não combinam. Mesmo uma dose compromete os reflexos.",
+  "No trânsito, enxergar o outro é salvar vidas.",
+  "Álcool e direção não combinam.",
   "Cada km/h acima do limite aumenta o risco de acidente. Respeite a sinalização.",
 ];
 
