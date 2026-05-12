@@ -407,10 +407,12 @@ export default function Home() {
         crosswalkStart: 0,
       });
     }
-    crosswalkColRef.current = 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1));
+    const randCW = () => 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1));
     let consec = 0;
+    let sectionCW = randCW();
     for (let i = 3; i < VISIBLE_ROWS + 20; i++) {
-      const lane = generateLane(i, 0, crosswalkColRef.current, consec);
+      if (consec === 0) sectionCW = randCW();
+      const lane = generateLane(i, 0, sectionCW, consec);
       consec = lane.type === "road" ? consec + 1 : 0;
       lanes.push(lane);
     }
@@ -732,11 +734,11 @@ export default function Home() {
   const drawCrosswalk = (ctx: CanvasRenderingContext2D, y: number, cwStart: number) => {
     const x0 = cwStart * TILE_SIZE;
     const w = CROSSWALK_WIDTH * TILE_SIZE;
-    const stripeH = 6;
-    const gap = 24;
+    const stripeW = 6;
+    const gap = Math.floor((w - 4) / 5) - stripeW;
     ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-    for (let sy = y + 3; sy < y + TILE_SIZE - 3; sy += stripeH + gap) {
-      ctx.fillRect(x0 + 2, sy, w - 4, stripeH);
+    for (let sx = x0 + 2; sx < x0 + w - 2; sx += stripeW + gap) {
+      ctx.fillRect(sx, y + 2, stripeW, TILE_SIZE - 4);
     }
   };
 
@@ -853,13 +855,13 @@ export default function Home() {
           const last = lanesRef.current;
           let consec = 0;
           for (let k = last.length - 1; k >= 0 && last[k].type === "road"; k--) consec++;
-          lanesRef.current.push(generateLane(lanesRef.current.length, difficulty, crosswalkColRef.current, consec));
+          const prevCW = last.length > 0 ? last[last.length - 1].crosswalkStart : 1;
+          const sectionCW = consec === 0
+            ? 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1))
+            : prevCW;
+          lanesRef.current.push(generateLane(lanesRef.current.length, difficulty, sectionCW, consec));
         }
         const upLane = lanesRef.current[player.row];
-        if (upLane.type === "grass" && upLane.hasTrees[player.col]) {
-          player.row -= 1;
-          return;
-        }
         // Penalidade por atravessar fora da faixa
         if (upLane.type === "road") {
           const cwEnd = upLane.crosswalkStart + CROSSWALK_WIDTH - 1;
