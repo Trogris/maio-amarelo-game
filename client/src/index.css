@@ -134,15 +134,15 @@
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.04);
 }
 
-/* ── Faixa branca dos logos ── */
+/* ── Faixa dos logos ── */
 .login-logos {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
   width: 100%;
-  padding: 1.4rem 2rem;
-  background: #ffffff;
-  gap: 1rem;
+  padding: 2rem 2rem 1.6rem;
+  background: linear-gradient(180deg, #1a2a4a 0%, #0f1b35 100%);
+  gap: 2.5rem;
   position: relative;
 }
 
@@ -156,17 +156,38 @@
   background: linear-gradient(90deg, #FDD835 0%, #00a3d2 100%);
 }
 
+/* Círculo container de cada logo */
+.login-logo-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.login-logo-circle:first-child {
+  box-shadow: 0 4px 20px rgba(0, 163, 210, 0.35), 0 0 0 3px rgba(0, 163, 210, 0.25);
+}
+
+.login-logo-circle:last-child {
+  box-shadow: 0 4px 20px rgba(253, 216, 53, 0.3), 0 0 0 3px rgba(253, 216, 53, 0.2);
+}
+
 .login-logo-instituto {
-  height: 60px;
-  width: auto;
-  max-width: 48%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 
 .login-logo-fiscaltech {
-  height: 44px;
-  width: auto;
-  max-width: 44%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 
