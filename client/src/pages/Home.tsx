@@ -1152,8 +1152,8 @@ export default function Home() {
                         onKeyPress={(e) => e.key === "Enter" && handleFirstAccessLogin()} disabled={isLoggingIn} />
                     </div>
                     <div className="form-group">
-                      <label htmlFor="sector">Setor</label>
-                      <input id="sector" type="text" placeholder="Digite seu setor"
+                      <label htmlFor="sector">Área</label>
+                      <input id="sector" type="text" placeholder="Digite sua área"
                         value={playerSector} onChange={(e) => setPlayerSector(e.target.value)}
                         onKeyPress={(e) => e.key === "Enter" && handleFirstAccessLogin()} disabled={isLoggingIn} />
                     </div>
