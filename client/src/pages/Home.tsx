@@ -202,7 +202,9 @@ function generateLane(row: number, difficulty: number, crosswalkStart: number = 
   const hasBushes: boolean[] = [];
   if (type === "grass") {
     for (let i = 0; i < COLS; i++) {
-      hasTrees.push(Math.random() > 0.7);
+      // Nunca duas árvores em colunas adjacentes — garante caminho lateral livre
+      const prevTree = i > 0 && hasTrees[i - 1];
+      hasTrees.push(!prevTree && Math.random() > 0.7);
       hasPoles.push(Math.random() > 0.85);
       hasBushes.push(Math.random() > 0.75);
     }
@@ -753,12 +755,13 @@ export default function Home() {
   const drawCrosswalk = (ctx: CanvasRenderingContext2D, y: number, cwStart: number) => {
     const x0 = cwStart * TILE_SIZE;
     const w = CROSSWALK_WIDTH * TILE_SIZE;
-    const stripeW = 6;
-    const totalW = w - 4;
-    const spacing = (totalW - stripeW * 4) / 3;
+    const stripeW = 10;
+    const gap = 7;
+    const totalUsed = stripeW * 4 + gap * 3;
+    const offsetX = (w - totalUsed) / 2;
     ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
     for (let i = 0; i < 4; i++) {
-      ctx.fillRect(x0 + 2 + i * (stripeW + spacing), y + 2, stripeW, TILE_SIZE - 4);
+      ctx.fillRect(x0 + offsetX + i * (stripeW + gap), y + 2, stripeW, TILE_SIZE - 4);
     }
   };
 
