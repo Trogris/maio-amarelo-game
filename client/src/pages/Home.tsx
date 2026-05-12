@@ -1096,7 +1096,7 @@ export default function Home() {
         <div className="login-hero">
           <p className="login-hero-tag">Seu bem maior é a <strong>vida.</strong></p>
           <div className="login-cascade" aria-hidden="true">
-            {["ATRAVESSE","ATRAVESSE","ATRAVESSE","ATRAVESSE","ATRAVESSE"].map((t,i) => (
+            {["DESACELERE","DESACELERE","DESACELERE","DESACELERE","DESACELERE"].map((t,i) => (
               <span key={i} className="login-cascade-word" style={{opacity: 1 - i * 0.18}}>{t}</span>
             ))}
           </div>
