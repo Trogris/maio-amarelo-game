@@ -113,75 +113,37 @@
 
 /* LOGIN SCREEN */
 /* ════════════════════════════════════════
-   LOGIN — inspirado no poster Instituto
+   LOGIN — responsivo: mobile / tablet / desktop
    ════════════════════════════════════════ */
 .login-screen {
   display: flex;
+  flex-direction: column;
   width: 100%;
   min-height: 100dvh;
   background: #111;
+  overflow-y: auto;
 }
 
-/* ── Desktop: lado a lado ── */
-@media (min-width: 700px) {
-  .login-screen { flex-direction: row; }
-
-  .login-hero {
-    flex: 1;
-    min-height: 100dvh;
-    justify-content: center;
-    padding: 3rem 2.5rem;
-  }
-
-  .login-cascade-word {
-    font-size: clamp(2.5rem, 5vw, 4.5rem);
-  }
-
-  .login-wave { display: none; }
-
-  .login-bottom {
-    width: 420px;
-    min-height: 100dvh;
-    flex-direction: column;
-    justify-content: center;
-    padding: 2rem 2.5rem;
-    overflow-y: auto;
-  }
-
-  .login-card { max-width: 100%; }
-}
-
-/* ── Mobile: empilhado compacto ── */
-@media (max-width: 699px) {
-  .login-screen { flex-direction: column; overflow-y: auto; }
-
-  .login-hero {
-    min-height: auto;
-    padding: 1.2rem 1.2rem 0;
-    justify-content: flex-end;
-  }
-
-  .login-cascade-word { font-size: clamp(2rem, 10vw, 3rem); }
-
-  .login-bottom { padding: 0 1rem 1.5rem; }
-}
-
-/* ── Hero (escuro com texto cascata) ── */
+/* ── Hero ── */
 .login-hero {
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background: linear-gradient(160deg, #2a2a2a 0%, #111 100%);
+  /* mobile padrão */
+  justify-content: flex-end;
+  padding: 1.2rem 1.4rem 0;
 }
 
 .login-hero-tag {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #e0e0e0;
-  margin: 0 0 1rem;
+  margin: 0 0 0.6rem;
   font-weight: 400;
   position: relative;
   z-index: 2;
+  text-align: center;
 }
 
 .login-hero-tag strong {
@@ -196,9 +158,11 @@
   gap: 0;
   position: relative;
   z-index: 2;
+  align-items: center;
 }
 
 .login-cascade-word {
+  font-size: clamp(2.2rem, 9vw, 3.2rem);
   font-weight: 900;
   color: #ffffff;
   line-height: 1;
@@ -206,7 +170,7 @@
   white-space: nowrap;
 }
 
-/* ── Onda separadora (só mobile) ── */
+/* ── Onda ── */
 .login-wave {
   width: 100%;
   line-height: 0;
@@ -224,13 +188,67 @@
   background: #ffffff;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
+  padding: 0 1.2rem 2rem;
+  flex: 1;
 }
 
 .login-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
+}
+
+/* ══ TABLET (≥ 600px) ══ */
+@media (min-width: 600px) {
+  .login-hero {
+    padding: 1.5rem 2rem 0;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .login-hero-tag { text-align: center; }
+  .login-cascade { align-items: center; }
+  .login-cascade-word { font-size: clamp(2.8rem, 8vw, 4rem); }
+  .login-bottom { padding: 0 2rem 2.5rem; align-items: flex-start; }
+  .login-card { max-width: 480px; }
+}
+
+/* ══ DESKTOP (≥ 900px): lado a lado ══ */
+@media (min-width: 900px) {
+  .login-screen {
+    flex-direction: row;
+    overflow: hidden;
+    height: 100dvh;
+  }
+
+  .login-hero {
+    flex: 1;
+    min-height: 100dvh;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 3rem 3rem;
+  }
+
+  .login-hero-tag { text-align: left; }
+  .login-cascade { align-items: flex-start; }
+  .login-cascade-word { font-size: clamp(3rem, 5vw, 5rem); }
+
+  .login-wave { display: none; }
+
+  .login-bottom {
+    width: 460px;
+    min-height: 100dvh;
+    height: 100dvh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 2.5rem;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .login-card { max-width: 100%; }
 }
 
 /* ── Logos ── */
