@@ -150,7 +150,7 @@ interface Item {
 
 const VEHICLE_COLORS = ["#E53935", "#1E88E5", "#FFFFFF", "#FDD835", "#7B1FA2", "#FF6D00", "#00897B"];
 
-function generateLane(row: number, difficulty: number): Lane {
+function generateLane(row: number, difficulty: number, crosswalkStart: number = 3): Lane {
   const rand = Math.random();
   let type: LaneType;
 
@@ -202,10 +202,7 @@ function generateLane(row: number, difficulty: number): Lane {
     }
   }
 
-  // Faixa de pedestres: posição aleatória em toda rua (evita bordas col 0 e col 8)
-  const crosswalkStart = type === "road"
-    ? 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1))
-    : -1;
+  const cwStart = type === "road" ? crosswalkStart : -1;
 
   // Moedas ficam sobre a faixa
   const items: Item[] = [];
@@ -213,7 +210,7 @@ function generateLane(row: number, difficulty: number): Lane {
     const numCoins = Math.random() > 0.4 ? (Math.random() > 0.5 ? 2 : 1) : 0;
     for (let c = 0; c < numCoins; c++) {
       const coinOffset = Math.floor(Math.random() * CROSSWALK_WIDTH);
-      const col = crosswalkStart + coinOffset;
+      const col = cwStart + coinOffset;
       const alreadyHere = items.some(it => it.col === col);
       if (!alreadyHere) {
         items.push({ x: col * TILE_SIZE + TILE_SIZE / 2, col, row, type: "coin", collected: false, points: 10, tip: "+10 moedas!" });
@@ -221,7 +218,7 @@ function generateLane(row: number, difficulty: number): Lane {
     }
   }
 
-  return { type, speed, direction, vehicles, hasTrees, hasPoles, hasBushes, items, crosswalkStart };
+  return { type, speed, direction, vehicles, hasTrees, hasPoles, hasBushes, items, crosswalkStart: cwStart };
 }
 
 export default function Home() {
@@ -275,6 +272,7 @@ export default function Home() {
   const collisionCooldownRef = useRef(0);
   const currentPlayerRef = useRef<typeof currentPlayer>(null);
   const explosionRef = useRef<{ frame: number; x: number; y: number } | null>(null);
+  const crosswalkColRef = useRef(1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1)));
 
   // Manter ref de currentPlayer sempre atualizada (evita closure stale no game loop)
   useEffect(() => {
@@ -403,8 +401,9 @@ export default function Home() {
         crosswalkStart: 0,
       });
     }
+    crosswalkColRef.current = 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1));
     for (let i = 3; i < VISIBLE_ROWS + 20; i++) {
-      lanes.push(generateLane(i, 0));
+      lanes.push(generateLane(i, 0, crosswalkColRef.current));
     }
     lanesRef.current = lanes;
 
@@ -842,7 +841,7 @@ export default function Home() {
         player.row += 1;
         while (lanesRef.current.length <= player.row + VISIBLE_ROWS) {
           const difficulty = Math.min(player.row / 4, 3);
-          lanesRef.current.push(generateLane(lanesRef.current.length, difficulty));
+          lanesRef.current.push(generateLane(lanesRef.current.length, difficulty, crosswalkColRef.current));
         }
         const upLane = lanesRef.current[player.row];
         if (upLane.type === "grass" && upLane.hasTrees[player.col]) {
