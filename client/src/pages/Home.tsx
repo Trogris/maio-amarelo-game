@@ -1140,9 +1140,6 @@ export default function Home() {
 
             {/* Formulário */}
             <div className="login-form-area">
-              <div>
-                <p className="login-subtitle">Maio Amarelo · Segurança no Trânsito</p>
-              </div>
               <div className="login-form">
                 {loginMode === "first-access" && (
                   <>
