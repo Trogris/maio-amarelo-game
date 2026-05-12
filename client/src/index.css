@@ -132,52 +132,42 @@
   flex-direction: column;
   overflow: hidden;
   background: #1a0aad;
-  justify-content: center;
-  align-items: center;
-  padding: 2.5rem 1.5rem 1rem;
-  gap: 1rem;
-  min-height: 220px;
+  justify-content: flex-end;
+  padding: 1.2rem 1.4rem 0;
 }
 
-.login-maio-heading {
+.login-hero-tag {
+  font-size: 0.9rem;
+  color: #e0e0e0;
+  margin: 0 0 0.6rem;
+  font-weight: 400;
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.login-hero-tag strong {
+  color: #FDD835;
+  font-style: italic;
+  font-weight: 800;
+}
+
+.login-cascade {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  line-height: 1;
   gap: 0;
+  position: relative;
+  z-index: 2;
+  align-items: center;
 }
 
-.login-maio-script {
-  font-family: 'Dancing Script', cursive;
-  font-size: clamp(2rem, 10vw, 3.2rem);
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1.1;
-  letter-spacing: 0.02em;
-}
-
-.login-maio-bold {
-  font-size: clamp(3rem, 14vw, 5.5rem);
+.login-cascade-word {
+  font-size: clamp(2.2rem, 9vw, 3.2rem);
   font-weight: 900;
-  color: #FDD835;
-  line-height: 0.95;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-}
-
-.login-hero-tagline {
-  font-size: clamp(0.85rem, 3.5vw, 1.05rem);
-  color: #e0e8ff;
-  text-align: center;
-  margin: 0;
-  font-weight: 400;
-  line-height: 1.5;
-  max-width: 320px;
-}
-
-.login-hero-tagline strong {
   color: #ffffff;
-  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 /* ── Onda ── */
@@ -213,11 +203,13 @@
 /* ══ TABLET (≥ 600px) ══ */
 @media (min-width: 600px) {
   .login-hero {
-    padding: 3rem 2rem 1.5rem;
-    min-height: 280px;
+    padding: 1.5rem 2rem 0;
+    align-items: center;
+    justify-content: flex-end;
   }
-  .login-maio-bold { font-size: clamp(4rem, 12vw, 6rem); }
-  .login-hero-tagline { font-size: 1.1rem; max-width: 420px; }
+  .login-hero-tag { text-align: center; }
+  .login-cascade { align-items: center; }
+  .login-cascade-word { font-size: clamp(2.8rem, 8vw, 4rem); }
   .login-bottom { padding: 0 2rem 2.5rem; align-items: flex-start; }
   .login-card { max-width: 480px; }
 }
@@ -239,10 +231,9 @@
     gap: 1.5rem;
   }
 
-  .login-maio-heading { align-items: flex-start; }
-  .login-maio-script { font-size: 3.5rem; }
-  .login-maio-bold { font-size: clamp(5rem, 7vw, 7rem); }
-  .login-hero-tagline { text-align: left; font-size: 1.2rem; max-width: 480px; }
+  .login-hero-tag { text-align: left; }
+  .login-cascade { align-items: flex-start; }
+  .login-cascade-word { font-size: clamp(3rem, 5vw, 5rem); }
 
   .login-wave { display: none; }
 
