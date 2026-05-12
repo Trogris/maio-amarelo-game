@@ -1097,14 +1097,15 @@ export default function Home() {
   if (gameState === "login") {
     return (
       <div className="login-screen">
-        {/* Área superior — fundo azul com texto cascata */}
+        {/* Área superior — fundo azul Maio Amarelo */}
         <div className="login-hero">
-          <p className="login-hero-tag">Seu bem maior é a <strong>vida.</strong></p>
-          <div className="login-cascade" aria-hidden="true">
-            {["DESACELERE","DESACELERE","DESACELERE","DESACELERE","DESACELERE"].map((t,i) => (
-              <span key={i} className="login-cascade-word" style={{opacity: 1 - i * 0.18}}>{t}</span>
-            ))}
+          <div className="login-maio-heading">
+            <span className="login-maio-script">maio</span>
+            <span className="login-maio-bold">Amarelo</span>
           </div>
+          <p className="login-hero-tagline">
+            No <strong>trânsito</strong>, enxergar o outro é <strong>salvar vidas.</strong>
+          </p>
         </div>
 
         {/* Onda separadora */}
