@@ -106,7 +106,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 4vh;
   position: relative;
   overflow: hidden;
 }
@@ -120,7 +121,7 @@
   flex-direction: column;
   width: 100%;
   min-height: 100dvh;
-  background: #111;
+  background: #fff;
   overflow-y: auto;
 }
 
@@ -130,51 +131,60 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: linear-gradient(160deg, #2a2a2a 0%, #111 100%);
-  /* mobile padrão */
-  justify-content: flex-end;
-  padding: 1.2rem 1.4rem 0;
+  background: #1a0aad;
+  justify-content: center;
+  align-items: center;
+  padding: 2.5rem 1.5rem 1rem;
+  gap: 1rem;
+  min-height: 220px;
 }
 
-.login-hero-tag {
-  font-size: 0.9rem;
-  color: #e0e0e0;
-  margin: 0 0 0.6rem;
-  font-weight: 400;
-  position: relative;
-  z-index: 2;
-  text-align: center;
-}
-
-.login-hero-tag strong {
-  color: #FDD835;
-  font-style: italic;
-  font-weight: 800;
-}
-
-.login-cascade {
+.login-maio-heading {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  position: relative;
-  z-index: 2;
   align-items: center;
+  line-height: 1;
+  gap: 0;
 }
 
-.login-cascade-word {
-  font-size: clamp(2.2rem, 9vw, 3.2rem);
-  font-weight: 900;
+.login-maio-script {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(2rem, 10vw, 3.2rem);
+  font-weight: 700;
   color: #ffffff;
-  line-height: 1;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.login-maio-bold {
+  font-size: clamp(3rem, 14vw, 5.5rem);
+  font-weight: 900;
+  color: #FDD835;
+  line-height: 0.95;
   letter-spacing: -0.02em;
-  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.login-hero-tagline {
+  font-size: clamp(0.85rem, 3.5vw, 1.05rem);
+  color: #e0e8ff;
+  text-align: center;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+.login-hero-tagline strong {
+  color: #ffffff;
+  font-weight: 800;
 }
 
 /* ── Onda ── */
 .login-wave {
   width: 100%;
   line-height: 0;
-  background: #111;
+  background: #1a0aad;
 }
 
 .login-wave svg {
@@ -203,13 +213,11 @@
 /* ══ TABLET (≥ 600px) ══ */
 @media (min-width: 600px) {
   .login-hero {
-    padding: 1.5rem 2rem 0;
-    align-items: center;
-    justify-content: flex-end;
+    padding: 3rem 2rem 1.5rem;
+    min-height: 280px;
   }
-  .login-hero-tag { text-align: center; }
-  .login-cascade { align-items: center; }
-  .login-cascade-word { font-size: clamp(2.8rem, 8vw, 4rem); }
+  .login-maio-bold { font-size: clamp(4rem, 12vw, 6rem); }
+  .login-hero-tagline { font-size: 1.1rem; max-width: 420px; }
   .login-bottom { padding: 0 2rem 2.5rem; align-items: flex-start; }
   .login-card { max-width: 480px; }
 }
@@ -227,12 +235,14 @@
     min-height: 100dvh;
     justify-content: center;
     align-items: flex-start;
-    padding: 3rem 3rem;
+    padding: 4rem 4rem;
+    gap: 1.5rem;
   }
 
-  .login-hero-tag { text-align: left; }
-  .login-cascade { align-items: flex-start; }
-  .login-cascade-word { font-size: clamp(3rem, 5vw, 5rem); }
+  .login-maio-heading { align-items: flex-start; }
+  .login-maio-script { font-size: 3.5rem; }
+  .login-maio-bold { font-size: clamp(5rem, 7vw, 7rem); }
+  .login-hero-tagline { text-align: left; font-size: 1.2rem; max-width: 480px; }
 
   .login-wave { display: none; }
 
@@ -836,6 +846,8 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  padding-top: 0;
+  justify-content: flex-start;
 }
 
 .canvas-wrapper {
@@ -1728,6 +1740,14 @@
   font-weight: bold;
   color: #FDD835;
   letter-spacing: 1px;
+}
+
+.hud-coin-icon {
+  font-size: 18px;
+  color: #FFD700;
+  text-shadow: 0 0 8px rgba(255,215,0,0.9), 0 1px 2px rgba(180,120,0,0.7);
+  line-height: 1;
+  letter-spacing: 0;
 }
 
 .hud-value {
