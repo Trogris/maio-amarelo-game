@@ -1378,7 +1378,15 @@
 .tf-screen {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 1rem;
+}
+
+@media (min-width: 600px) {
+  .tf-screen {
+    justify-content: center;
+    padding-top: 0;
+  }
 }
 
 .tf-content {
