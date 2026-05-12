@@ -875,7 +875,14 @@ export default function Home() {
     const player = playerRef.current;
 
     switch (direction) {
-      case "up":
+      case "up": {
+        const nextRow = player.row + 1;
+        if (lanesRef.current.length > nextRow) {
+          const upLaneCheck = lanesRef.current[nextRow];
+          if (upLaneCheck.type === "grass" && upLaneCheck.hasTrees[player.col]) {
+            return;
+          }
+        }
         player.row += 1;
         while (lanesRef.current.length <= player.row + VISIBLE_ROWS) {
           const difficulty = Math.min(player.row / 4, 3);
@@ -921,6 +928,7 @@ export default function Home() {
           setScore(scoreRef.current);
         }
         break;
+      }
       case "down":
         if (player.row > 0) {
           const downLane = lanesRef.current[player.row - 1];
