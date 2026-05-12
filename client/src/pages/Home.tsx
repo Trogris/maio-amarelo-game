@@ -1151,7 +1151,6 @@ export default function Home() {
             {/* Formulário */}
             <div className="login-form-area">
               <div>
-                <h1 className="login-title">Travessia Segura</h1>
                 <p className="login-subtitle">Maio Amarelo · Segurança no Trânsito</p>
               </div>
               <div className="login-form">
@@ -1482,11 +1481,7 @@ export default function Home() {
             <span className="score-value">{score}</span>
           </div>
           <div className="safety-message">
-            <span className="safety-message-icon">💡</span>
-            <div>
-              <span className="safety-message-label">DICA DE SEGURANÇA</span>
-              <p>{safetyMessage}</p>
-            </div>
+            <p>{safetyMessage}</p>
           </div>
           <div className="gameover-buttons">
             <button className="btn-play" onClick={initGame}>
