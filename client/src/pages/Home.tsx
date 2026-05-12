@@ -724,17 +724,12 @@ export default function Home() {
   const drawCrosswalk = (ctx: CanvasRenderingContext2D, y: number, cwStart: number) => {
     const x0 = cwStart * TILE_SIZE;
     const w = CROSSWALK_WIDTH * TILE_SIZE;
-    // Listras brancas verticais dentro da faixa
-    const stripeW = 8;
-    const gap = 6;
+    const stripeH = 6;
+    const gap = 5;
     ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-    for (let sx = x0 + 4; sx < x0 + w - 4; sx += stripeW + gap) {
-      ctx.fillRect(sx, y + 4, stripeW, TILE_SIZE - 8);
+    for (let sy = y + 3; sy < y + TILE_SIZE - 3; sy += stripeH + gap) {
+      ctx.fillRect(x0 + 2, sy, w - 4, stripeH);
     }
-    // Borda amarela leve nas laterais da faixa
-    ctx.strokeStyle = "rgba(253, 216, 53, 0.6)";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x0 + 1, y + 1, w - 2, TILE_SIZE - 2);
   };
 
   const drawVehicle = (ctx: CanvasRenderingContext2D, vehicle: Vehicle, laneY: number) => {
