@@ -1091,95 +1091,100 @@ export default function Home() {
   // ============================================================
   if (gameState === "login") {
     return (
-      <div className="game-container login-screen">
-        <div className="login-content">
-          <div className="login-logos">
-            <img src="/logo-instituto-fix.svg" alt="Instituto Motorista do Amanhã" className="login-logo-instituto" />
-            <img src="/logo-fiscaltech-crop.svg" alt="FiscalTech" className="login-logo-fiscaltech" />
+      <div className="login-screen">
+        {/* Área superior — fundo escuro com texto cascata */}
+        <div className="login-hero">
+          <p className="login-hero-tag">Seu bem maior é a <strong>vida.</strong></p>
+          <div className="login-cascade" aria-hidden="true">
+            {["ATRAVESSE","ATRAVESSE","ATRAVESSE","ATRAVESSE","ATRAVESSE"].map((t,i) => (
+              <span key={i} className="login-cascade-word" style={{opacity: 1 - i * 0.18}}>{t}</span>
+            ))}
           </div>
-          <div className="login-form-area">
-          <h1 className="login-title">Travessia Segura</h1>
-          <p className="login-subtitle">Maio Amarelo - Segurança no Trânsito</p>
+        </div>
 
-          <div className="login-form">
-            {loginMode === "first-access" && (
-              <>
-                <p className="login-mode-indicator">Primeiro acesso</p>
-                <div className="form-group">
-                  <label htmlFor="email">Email Corporativo</label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="seu.email@empresa.com"
-                    value={playerEmail}
-                    onChange={(e) => setPlayerEmail(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleFirstAccessLogin()}
-                    disabled={isLoggingIn}
-                  />
-                  <p className="form-help">Use seu email corporativo, não pessoal</p>
+        {/* Onda separadora */}
+        <div className="login-wave">
+          <svg viewBox="0 0 500 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,0 Q125,60 250,30 Q375,0 500,40 L500,60 L0,60 Z" fill="#FDD835"/>
+            <path d="M0,10 Q125,65 250,38 Q375,8 500,48 L500,60 L0,60 Z" fill="#ffffff"/>
+          </svg>
+        </div>
+
+        {/* Área inferior — card branco */}
+        <div className="login-bottom">
+          <div className="login-card">
+            {/* Logos */}
+            <div className="login-logos">
+              {/* Instituto — recriado em CSS para máxima nitidez */}
+              <div className="logo-instituto-css">
+                <span className="logo-instituto-arrows">{">>"}</span>
+                <div className="logo-instituto-text">
+                  <span className="logo-instituto-line1">INSTITUTO</span>
+                  <span className="logo-instituto-line2">MOTORISTA</span>
+                  <span className="logo-instituto-line3">DO AMANHÃ</span>
                 </div>
-                <div className="form-group">
-                  <label htmlFor="name">Nome e Sobrenome</label>
-                  <input
-                    id="name"
-                    type="text"
-                    placeholder="Digite seu nome completo"
-                    value={playerName}
-                    onChange={(e) => setPlayerName(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleFirstAccessLogin()}
-                    disabled={isLoggingIn}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="sector">Setor</label>
-                  <input
-                    id="sector"
-                    type="text"
-                    placeholder="Digite seu setor"
-                    value={playerSector}
-                    onChange={(e) => setPlayerSector(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleFirstAccessLogin()}
-                    disabled={isLoggingIn}
-                  />
-                </div>
-                {loginError && <p className="form-error">{loginError}</p>}
-                <button className="btn-play" onClick={handleFirstAccessLogin} disabled={isLoggingIn || !playerEmail.trim() || !playerName.trim() || !playerSector.trim()}>
-                  {isLoggingIn ? "ENTRANDO..." : "ENTRAR"}
-                </button>
-              </>
-            )}
-            {loginMode === "email-only" && (
-              <>
-                <p className="login-mode-indicator">Digite seu email para continuar</p>
-                <div className="form-group">
-                  <label htmlFor="email">Email Corporativo</label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="seu.email@empresa.com"
-                    value={playerEmail}
-                    onChange={(e) => setPlayerEmail(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleEmailOnlyLogin()}
-                    disabled={isLoggingIn}
-                    autoFocus
-                  />
-                </div>
-                {loginError && <p className="form-error">{loginError}</p>}
-                <button className="btn-play" onClick={handleEmailOnlyLogin} disabled={isLoggingIn || !playerEmail.trim()}>
-                  {isLoggingIn ? "ENTRANDO..." : "ENTRAR"}
-                </button>
-                <button className="btn-secondary" onClick={() => {
-                  setLoginMode("first-access");
-                  setPlayerEmail("");
-                  setPlayerName("");
-                  setPlayerSector("");
-                  setLoginError("");
-                }} disabled={isLoggingIn}>
-                  Não tenho cadastro
-                </button>
-              </>
-            )}
-          </div>
+              </div>
+              <div className="login-logos-divider" />
+              <img src="/logo-fiscaltech-crop.svg" alt="FiscalTech" className="login-logo-fiscaltech" />
+            </div>
+
+            {/* Formulário */}
+            <div className="login-form-area">
+              <div>
+                <h1 className="login-title">Travessia Segura</h1>
+                <p className="login-subtitle">Maio Amarelo · Segurança no Trânsito</p>
+              </div>
+              <div className="login-form">
+                {loginMode === "first-access" && (
+                  <>
+                    <p className="login-mode-indicator">Primeiro acesso</p>
+                    <div className="form-group">
+                      <label htmlFor="email">Email Corporativo</label>
+                      <input id="email" type="email" placeholder="seu.email@empresa.com"
+                        value={playerEmail} onChange={(e) => setPlayerEmail(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && handleFirstAccessLogin()} disabled={isLoggingIn} />
+                      <p className="form-help">Use seu email corporativo, não pessoal</p>
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="name">Nome e Sobrenome</label>
+                      <input id="name" type="text" placeholder="Digite seu nome completo"
+                        value={playerName} onChange={(e) => setPlayerName(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && handleFirstAccessLogin()} disabled={isLoggingIn} />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="sector">Setor</label>
+                      <input id="sector" type="text" placeholder="Digite seu setor"
+                        value={playerSector} onChange={(e) => setPlayerSector(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && handleFirstAccessLogin()} disabled={isLoggingIn} />
+                    </div>
+                    {loginError && <p className="form-error">{loginError}</p>}
+                    <button className="btn-login" onClick={handleFirstAccessLogin}
+                      disabled={isLoggingIn || !playerEmail.trim() || !playerName.trim() || !playerSector.trim()}>
+                      {isLoggingIn ? "ENTRANDO..." : "ENTRAR →"}
+                    </button>
+                  </>
+                )}
+                {loginMode === "email-only" && (
+                  <>
+                    <p className="login-mode-indicator">Digite seu email para continuar</p>
+                    <div className="form-group">
+                      <label htmlFor="email">Email Corporativo</label>
+                      <input id="email" type="email" placeholder="seu.email@empresa.com"
+                        value={playerEmail} onChange={(e) => setPlayerEmail(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && handleEmailOnlyLogin()}
+                        disabled={isLoggingIn} autoFocus />
+                    </div>
+                    {loginError && <p className="form-error">{loginError}</p>}
+                    <button className="btn-login" onClick={handleEmailOnlyLogin} disabled={isLoggingIn || !playerEmail.trim()}>
+                      {isLoggingIn ? "ENTRANDO..." : "ENTRAR →"}
+                    </button>
+                    <button className="btn-secondary" onClick={() => {
+                      setLoginMode("first-access"); setPlayerEmail(""); setPlayerName(""); setPlayerSector(""); setLoginError("");
+                    }} disabled={isLoggingIn}>Não tenho cadastro</button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
