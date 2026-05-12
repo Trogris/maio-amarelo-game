@@ -417,8 +417,9 @@ export default function Home() {
         sectionCW = randCW();
         // Limpar árvores nas colunas da faixa nas gramas anteriores (entrada)
         for (let k = lanes.length - 1; k >= 0 && lanes[k].type === "grass"; k--) {
-          lanes[k].hasTrees[sectionCW] = false;
-          lanes[k].hasTrees[sectionCW + 1] = false;
+          for (let c = Math.max(0, sectionCW - 1); c <= Math.min(COLS - 1, sectionCW + 2); c++) {
+            lanes[k].hasTrees[c] = false;
+          }
         }
       }
       const lane = generateLane(i, 0, sectionCW, consec);
@@ -428,8 +429,9 @@ export default function Home() {
       if (lane.type === "grass" && lanes.length > 1) {
         const prev = lanes[lanes.length - 2];
         if (prev.type === "road") {
-          lane.hasTrees[prev.crosswalkStart] = false;
-          lane.hasTrees[prev.crosswalkStart + 1] = false;
+          for (let c = Math.max(0, prev.crosswalkStart - 1); c <= Math.min(COLS - 1, prev.crosswalkStart + 2); c++) {
+            lane.hasTrees[c] = false;
+          }
         }
       }
     }
@@ -884,15 +886,18 @@ export default function Home() {
             : prevCW;
           if (consec === 0) {
             for (let k = last.length - 1; k >= 0 && last[k].type === "grass"; k--) {
-              last[k].hasTrees[sectionCW] = false;
-              last[k].hasTrees[sectionCW + 1] = false;
+              for (let c = Math.max(0, sectionCW - 1); c <= Math.min(COLS - 1, sectionCW + 2); c++) {
+                last[k].hasTrees[c] = false;
+              }
             }
           }
           const newLane = generateLane(lanesRef.current.length, difficulty, sectionCW, consec);
           lanesRef.current.push(newLane);
           if (newLane.type === "grass" && last.length > 0 && last[last.length - 1].type === "road") {
-            newLane.hasTrees[last[last.length - 1].crosswalkStart] = false;
-            newLane.hasTrees[last[last.length - 1].crosswalkStart + 1] = false;
+            const exitCW = last[last.length - 1].crosswalkStart;
+            for (let c = Math.max(0, exitCW - 1); c <= Math.min(COLS - 1, exitCW + 2); c++) {
+              newLane.hasTrees[c] = false;
+            }
           }
         }
         const upLane = lanesRef.current[player.row];
@@ -995,7 +1000,7 @@ export default function Home() {
       if (!canvas) return;
       const container = canvas.parentElement;
       if (!container) return;
-      const maxH = window.innerHeight - 70 - 155;
+      const maxH = container.clientHeight;
       canvas.width = Math.min(COLS * TILE_SIZE, container.clientWidth);
       canvas.height = Math.min((VISIBLE_ROWS + 1) * TILE_SIZE, maxH);
     };
@@ -1506,7 +1511,7 @@ export default function Home() {
           <div className="hud-label">RUAS</div>
           <div className="hud-value">{Math.min(playerRef.current.row, MAX_ROWS)}/{MAX_ROWS}</div>
         </div>
-        <button className="btn-quit-game" onClick={quitGame}>✕ Sair do Jogo</button>
+        <button className="btn-quit-game" onClick={quitGame}>✕ <span className="quit-label">Sair</span></button>
       </div>
       {penaltyTip && (
         <div className="penalty-banner">
