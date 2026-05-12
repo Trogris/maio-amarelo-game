@@ -113,7 +113,7 @@
 
 /* LOGIN SCREEN */
 .login-screen {
-  background: #1a1a2e;
+  background: linear-gradient(160deg, #0f1b35 0%, #1a1a2e 50%, #0f2a1e 100%);
 }
 
 .login-content {
@@ -122,36 +122,63 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  padding: 2rem;
+  gap: 0;
+  padding: 0;
   text-align: center;
-  background: rgba(20, 20, 40, 0.95);
-  border-radius: 16px;
-  border: 1px solid rgba(253, 216, 53, 0.2);
-  max-width: 400px;
-  width: 90%;
+  background: transparent;
+  border-radius: 20px;
+  border: 1px solid rgba(253, 216, 53, 0.25);
+  max-width: 420px;
+  width: 92%;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.04);
 }
 
+/* ── Faixa branca dos logos ── */
 .login-logos {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
+  justify-content: space-around;
   width: 100%;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(253, 216, 53, 0.15);
+  padding: 1.4rem 2rem;
+  background: #ffffff;
+  gap: 1rem;
+  position: relative;
+}
+
+.login-logos::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #FDD835 0%, #00a3d2 100%);
 }
 
 .login-logo-instituto {
-  height: 64px;
+  height: 60px;
   width: auto;
+  max-width: 48%;
   object-fit: contain;
 }
 
 .login-logo-fiscaltech {
-  height: 48px;
+  height: 44px;
   width: auto;
+  max-width: 44%;
   object-fit: contain;
+}
+
+/* ── Área do formulário ── */
+.login-form-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.8rem 2rem 2rem;
+  width: 100%;
+  background: rgba(15, 20, 40, 0.97);
 }
 
 .login-title {

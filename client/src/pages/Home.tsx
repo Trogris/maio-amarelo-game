@@ -1097,6 +1097,7 @@ export default function Home() {
             <img src="/logo-instituto.svg" alt="Instituto Motorista do Amanhã" className="login-logo-instituto" />
             <img src="/logo-fiscaltech.svg" alt="FiscalTech" className="login-logo-fiscaltech" />
           </div>
+          <div className="login-form-area">
           <h1 className="login-title">Travessia Segura</h1>
           <p className="login-subtitle">Maio Amarelo - Segurança no Trânsito</p>
 
@@ -1178,6 +1179,7 @@ export default function Home() {
                 </button>
               </>
             )}
+          </div>
           </div>
         </div>
       </div>
