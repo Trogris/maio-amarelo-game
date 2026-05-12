@@ -12,9 +12,19 @@ const TILE_SIZE = 50;
 const PLAYER_SIZE = 40;
 const COLS = 9;
 const VISIBLE_ROWS = 14;
-const PLAYER_Y_OFFSET = 2; // jogador próximo à base, estrada à frente aparece acima
-const MAX_ROWS = 40; // Missão: atravessar 40 ruas
+const PLAYER_Y_OFFSET = 2;
+const MAX_ROWS = 40;
 const MAX_LIVES = 5;
+const CROSSWALK_WIDTH = 3;
+const PENALTY_POINTS = 20;
+
+const CROSSWALK_PENALTY_MESSAGES = [
+  "Use a faixa! É mais seguro.",
+  "Na faixa você tem prioridade!",
+  "Atravessar fora da faixa é perigoso!",
+  "A faixa protege você. Sempre use-a!",
+  "Respeite a faixa de pedestres!",
+];
 
 const SAFETY_MESSAGES = [
   "Respeite a faixa de pedestres!",
@@ -104,7 +114,7 @@ const QUIZ_QUESTIONS = [
   },
 ];
 
-type LaneType = "grass" | "road" | "crosswalk";
+type LaneType = "grass" | "road";
 type ItemType = "coin";
 
 interface Lane {
@@ -116,6 +126,7 @@ interface Lane {
   hasPoles: boolean[];
   hasBushes: boolean[];
   items: Item[];
+  crosswalkStart: number; // col inicial da faixa (-1 se grass)
 }
 
 interface Vehicle {
@@ -143,73 +154,46 @@ function generateLane(row: number, difficulty: number): Lane {
   const rand = Math.random();
   let type: LaneType;
 
-  // Zonas seguras ficam mais raras conforme avança
-  const crosswalkInterval = difficulty < 1 ? 4 : difficulty < 2 ? 6 : 8;
   const grassChance = Math.max(0.06, 0.28 - difficulty * 0.07);
+  type = rand < grassChance ? "grass" : "road";
 
-  if (row % crosswalkInterval === 0) {
-    type = "crosswalk";
-  } else if (rand < grassChance) {
-    type = "grass";
-  } else {
-    type = "road";
-  }
-
-  // Velocidade base cresce com dificuldade; faixa de random estreita para mais previsibilidade
   const baseSpeed = 0.5 + difficulty * 0.6;
   const speed = type === "road" ? baseSpeed + Math.random() * (0.8 + difficulty * 0.15) : 0;
   const direction = Math.random() > 0.5 ? 1 : -1;
 
   const vehicles: Vehicle[] = [];
   if (type === "road") {
-    // Mais veículos conforme dificuldade
     const minVehicles = 1 + Math.floor(difficulty * 0.7);
     const maxVehicles = 2 + Math.floor(difficulty * 1.4);
     const numVehicles = minVehicles + Math.floor(Math.random() * (maxVehicles - minVehicles + 1));
-
     const totalWidth = COLS * TILE_SIZE + 200;
-    // Espaçamento diminui com dificuldade (trânsito mais denso)
     const spacingMult = Math.max(0.45, 1 - difficulty * 0.18);
     const spacing = (totalWidth / numVehicles) * spacingMult;
-
-    // Multiplicador de velocidade individual cresce com dificuldade
     const speedMult = 1 + difficulty * 0.35;
 
     for (let i = 0; i < numVehicles; i++) {
       const r = Math.random();
       let vType: "car" | "truck" | "motorcycle" | "bus" | "cyclist" | "van";
-      let width: number;
-      let height: number;
-      let vSpeed: number;
-
-      if (r < 0.38) {
-        vType = "car"; width = 50; height = 24; vSpeed = 1.5;
-      } else if (r < 0.53) {
-        vType = "motorcycle"; width = 30; height = 16; vSpeed = 2.5;
-      } else if (r < 0.63) {
-        vType = "bus"; width = 60; height = 28; vSpeed = 0.9;
-      } else if (r < 0.73) {
-        vType = "truck"; width = 70; height = 26; vSpeed = 1.2;
-      } else if (r < 0.83) {
-        vType = "cyclist"; width = 20; height = 16; vSpeed = 1.8;
-      } else {
-        vType = "van"; width = 45; height = 24; vSpeed = 1.4;
-      }
-
+      let width: number, height: number, vSpeed: number;
+      if (r < 0.38)      { vType = "car";        width = 50; height = 24; vSpeed = 1.5; }
+      else if (r < 0.53) { vType = "motorcycle"; width = 30; height = 16; vSpeed = 2.5; }
+      else if (r < 0.63) { vType = "bus";        width = 60; height = 28; vSpeed = 0.9; }
+      else if (r < 0.73) { vType = "truck";      width = 70; height = 26; vSpeed = 1.2; }
+      else if (r < 0.83) { vType = "cyclist";    width = 20; height = 16; vSpeed = 1.8; }
+      else               { vType = "van";         width = 45; height = 24; vSpeed = 1.4; }
       vehicles.push({
         x: i * spacing + Math.random() * 30,
-        width,
-        height,
+        width, height,
         color: VEHICLE_COLORS[Math.floor(Math.random() * VEHICLE_COLORS.length)],
         type: vType,
         speed: vSpeed * speedMult,
       });
     }
   }
-  const hasPoles: boolean[] = [];
-  const hasBushes: boolean[] = [];
 
   const hasTrees: boolean[] = [];
+  const hasPoles: boolean[] = [];
+  const hasBushes: boolean[] = [];
   if (type === "grass") {
     for (let i = 0; i < COLS; i++) {
       hasTrees.push(Math.random() > 0.7);
@@ -218,19 +202,26 @@ function generateLane(row: number, difficulty: number): Lane {
     }
   }
 
-  const items: Item[] = [];
-  if (type === "road" && Math.random() > 0.45) {
-    const col = Math.floor(Math.random() * COLS);
-    items.push({ x: col * TILE_SIZE + TILE_SIZE / 2, col, row, type: "coin", collected: false, points: 10, tip: "+10 moedas!" });
+  // Faixa de pedestres: posição aleatória em toda rua (evita bordas col 0 e col 8)
+  const crosswalkStart = type === "road"
+    ? 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1))
+    : -1;
 
-    // segunda moeda extra em algumas pistas
-    if (Math.random() > 0.5) {
-      const col2 = (col + 3 + Math.floor(Math.random() * 3)) % COLS;
-      items.push({ x: col2 * TILE_SIZE + TILE_SIZE / 2, col: col2, row, type: "coin", collected: false, points: 10, tip: "+10 moedas!" });
+  // Moedas ficam sobre a faixa
+  const items: Item[] = [];
+  if (type === "road") {
+    const numCoins = Math.random() > 0.4 ? (Math.random() > 0.5 ? 2 : 1) : 0;
+    for (let c = 0; c < numCoins; c++) {
+      const coinOffset = Math.floor(Math.random() * CROSSWALK_WIDTH);
+      const col = crosswalkStart + coinOffset;
+      const alreadyHere = items.some(it => it.col === col);
+      if (!alreadyHere) {
+        items.push({ x: col * TILE_SIZE + TILE_SIZE / 2, col, row, type: "coin", collected: false, points: 10, tip: "+10 moedas!" });
+      }
     }
   }
 
-  return { type, speed, direction, vehicles, hasTrees, hasPoles, hasBushes, items };
+  return { type, speed, direction, vehicles, hasTrees, hasPoles, hasBushes, items, crosswalkStart };
 }
 
 export default function Home() {
@@ -251,7 +242,9 @@ export default function Home() {
   const [coins, setCoins] = useState(0);
   const [safetyMessage, setSafetyMessage] = useState("");
   const [rewardTip, setRewardTip] = useState("");
+  const [penaltyTip, setPenaltyTip] = useState("");
   const rewardTipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const penaltyTipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Quiz state
   const [quizIndex, setQuizIndex] = useState(0);
@@ -407,6 +400,7 @@ export default function Home() {
         hasPoles: Array(COLS).fill(false),
         hasBushes: Array(COLS).fill(false),
         items: [],
+        crosswalkStart: 0,
       });
     }
     for (let i = 3; i < VISIBLE_ROWS + 20; i++) {
@@ -592,10 +586,13 @@ export default function Home() {
         case "road":
           ctx.fillStyle = "#424242";
           ctx.fillRect(0, y, canvas.width, TILE_SIZE);
+          // Linha tracejada central
           ctx.fillStyle = "#BDBDBD";
           for (let dx = 0; dx < canvas.width; dx += 40) {
             ctx.fillRect(dx, y + TILE_SIZE / 2 - 1, 20, 2);
           }
+          // Faixa de pedestres na posição da lane
+          drawCrosswalk(ctx, y, lane.crosswalkStart);
           for (const vehicle of lane.vehicles) {
             drawVehicle(ctx, vehicle, y);
           }
@@ -604,11 +601,6 @@ export default function Home() {
               drawItem(ctx, item, y);
             }
           }
-          break;
-        case "crosswalk":
-          ctx.fillStyle = "#424242";
-          ctx.fillRect(0, y, canvas.width, TILE_SIZE);
-          drawCrosswalk(ctx, y);
           break;
       }
     }
@@ -729,13 +721,20 @@ export default function Home() {
     ctx.fill();
   };
 
-  const drawCrosswalk = (ctx: CanvasRenderingContext2D, y: number) => {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-    for (let i = 0; i < COLS; i++) {
-      for (let j = 0; j < 4; j++) {
-        ctx.fillRect(i * TILE_SIZE + 5 + (j % 2) * 6, y + 10 + Math.floor(j / 2) * 6, 4, 3);
-      }
+  const drawCrosswalk = (ctx: CanvasRenderingContext2D, y: number, cwStart: number) => {
+    const x0 = cwStart * TILE_SIZE;
+    const w = CROSSWALK_WIDTH * TILE_SIZE;
+    // Listras brancas verticais dentro da faixa
+    const stripeW = 8;
+    const gap = 6;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+    for (let sx = x0 + 4; sx < x0 + w - 4; sx += stripeW + gap) {
+      ctx.fillRect(sx, y + 4, stripeW, TILE_SIZE - 8);
     }
+    // Borda amarela leve nas laterais da faixa
+    ctx.strokeStyle = "rgba(253, 216, 53, 0.6)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x0 + 1, y + 1, w - 2, TILE_SIZE - 2);
   };
 
   const drawVehicle = (ctx: CanvasRenderingContext2D, vehicle: Vehicle, laneY: number) => {
@@ -855,10 +854,22 @@ export default function Home() {
           player.row -= 1;
           return;
         }
+        // Penalidade por atravessar fora da faixa
+        if (upLane.type === "road") {
+          const cwEnd = upLane.crosswalkStart + CROSSWALK_WIDTH - 1;
+          if (player.col < upLane.crosswalkStart || player.col > cwEnd) {
+            scoreRef.current = Math.max(0, scoreRef.current - PENALTY_POINTS);
+            setScore(scoreRef.current);
+            const msg = CROSSWALK_PENALTY_MESSAGES[Math.floor(Math.random() * CROSSWALK_PENALTY_MESSAGES.length)];
+            setPenaltyTip(msg);
+            if (penaltyTipTimeoutRef.current) clearTimeout(penaltyTipTimeoutRef.current);
+            penaltyTipTimeoutRef.current = setTimeout(() => setPenaltyTip(""), 2500);
+          }
+        }
         if (player.row > maxRowRef.current) {
           maxRowRef.current = player.row;
           scoreRef.current = maxRowRef.current;
-          setScore(maxRowRef.current);
+          setScore(scoreRef.current);
         }
         break;
       case "down":
@@ -1444,6 +1455,11 @@ export default function Home() {
         </div>
         <button className="btn-quit-game" onClick={quitGame}>✕ Sair do Jogo</button>
       </div>
+      {penaltyTip && (
+        <div className="penalty-banner">
+          ⚠ {penaltyTip} <span className="penalty-pts">-{PENALTY_POINTS} pts</span>
+        </div>
+      )}
       <div className="canvas-wrapper">
         <canvas ref={canvasRef} className="game-canvas" />
       </div>

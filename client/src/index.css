@@ -605,6 +605,7 @@
 .playing-screen {
   background: #1a1a2e;
   gap: 0;
+  position: relative;
 }
 
 .canvas-wrapper {
@@ -942,6 +943,35 @@
 
 .btn-next:hover {
   background: rgba(253, 216, 53, 0.35);
+}
+
+.penalty-banner {
+  position: absolute;
+  top: 75px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(183, 28, 28, 0.92);
+  color: #fff;
+  padding: 0.45rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  z-index: 100;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  animation: fadeInDown 0.2s ease;
+  pointer-events: none;
+}
+
+.penalty-pts {
+  color: #FFCDD2;
+  margin-left: 0.4rem;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 .btn-quit-game {
