@@ -52,66 +52,77 @@ const QUIZ_QUESTIONS = [
     options: ["40 km/h", "50 km/h", "60 km/h", "80 km/h"],
     correct: 1,
     prize: 1000,
+    explanation: "O CTB define 50 km/h como velocidade máxima em vias urbanas sem sinalização específica.",
   },
   {
     question: "O que significa a faixa amarela contínua no centro da via?",
     options: ["Pode ultrapassar", "Proibido ultrapassar", "Via de mão única", "Área escolar"],
     correct: 1,
     prize: 2000,
+    explanation: "A faixa amarela contínua indica proibição de ultrapassagem nos dois sentidos.",
   },
   {
     question: "Qual o significado do sinal amarelo do semáforo?",
     options: ["Acelerar para passar", "Atenção/Parar se possível", "Seguir em frente", "Dar ré"],
     correct: 1,
     prize: 3000,
+    explanation: "O amarelo indica atenção: o condutor deve reduzir a velocidade e parar se for seguro fazê-lo.",
   },
   {
     question: "Quem tem prioridade na faixa de pedestres?",
     options: ["Veículos", "Pedestres", "Ciclistas", "Motocicletas"],
     correct: 1,
     prize: 5000,
+    explanation: "O pedestre tem total prioridade na faixa de pedestres. O condutor deve parar e aguardar.",
   },
   {
     question: "É permitido usar celular ao dirigir?",
     options: ["Sim, em vias lentas", "Apenas mensagens", "Não, é infração gravíssima", "Sim, com fone"],
     correct: 2,
     prize: 10000,
+    explanation: "Usar o celular ao volante é infração gravíssima com multa de R$293,47 e 7 pontos na CNH.",
   },
   {
     question: "Qual a distância mínima para seguir outro veículo?",
     options: ["1 carro", "2 segundos", "5 metros", "Não há regra"],
     correct: 1,
     prize: 20000,
+    explanation: "A regra dos 2 segundos garante tempo de reação suficiente para frear com segurança.",
   },
   {
     question: "O que o Maio Amarelo representa?",
     options: ["Mês do trânsito", "Conscientização sobre segurança no trânsito", "Dia do motorista", "Semana da mobilidade"],
     correct: 1,
     prize: 50000,
+    explanation: "O Maio Amarelo é um movimento mundial de conscientização para reduzir mortes no trânsito.",
   },
   {
     question: "Qual a principal causa de acidentes no trânsito?",
     options: ["Falha mecânica", "Condições da via", "Falta de atenção do condutor", "Clima"],
     correct: 2,
     prize: 100000,
+    explanation: "Mais de 70% dos acidentes são causados por fatores humanos como distração e excesso de velocidade.",
   },
   {
     question: "Qual é a idade mínima para dirigir no Brasil?",
     options: ["16 anos", "17 anos", "18 anos", "21 anos"],
     correct: 2,
     prize: 300000,
+    explanation: "No Brasil, a CNH pode ser obtida a partir dos 18 anos, exceto para categorias especiais.",
   },
   {
     question: "O que fazer se o freio falhar enquanto dirige?",
     options: ["Usar o freio de mão gradualmente", "Desligar o motor", "Procurar um local seguro para parar", "Todas as anteriores"],
     correct: 3,
     prize: 500000,
+    explanation: "Em caso de falha de freios, a combinação das três ações é a mais segura para parar o veículo.",
   },
   {
     question: "Qual é o objetivo principal do Maio Amarelo?",
     options: ["Aumentar vendas de carros", "Reduzir acidentes de trânsito", "Arrecadar impostos", "Promover eventos"],
     correct: 1,
     prize: 1000000,
+    explanation: "O Maio Amarelo busca reduzir o número de mortes e lesões no trânsito através da educação.",
   },
 ];
 
@@ -257,6 +268,7 @@ export default function Home() {
   const [quizAnswered, setQuizAnswered] = useState(false);
   const [quizCorrect, setQuizCorrect] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
+  const [quizSelectedAnswer, setQuizSelectedAnswer] = useState<number | null>(null);
   const [quizTimer, setQuizTimer] = useState(20);
   const quizTimerRef = useRef<number>(0);
 
@@ -1042,6 +1054,7 @@ export default function Home() {
   const answerQuiz = (optionIndex: number) => {
     if (quizAnswered) return;
     setQuizAnswered(true);
+    setQuizSelectedAnswer(optionIndex);
     const isCorrect = optionIndex === QUIZ_QUESTIONS[quizIndex].correct;
     setQuizCorrect(isCorrect);
     if (isCorrect) {
@@ -1056,6 +1069,7 @@ export default function Home() {
       setQuizIndex((prev) => prev + 1);
       setQuizAnswered(false);
       setQuizCorrect(false);
+      setQuizSelectedAnswer(null);
     }
   };
 
@@ -1392,9 +1406,9 @@ export default function Home() {
                   quizAnswered
                     ? idx === currentQ.correct
                       ? "correct"
-                      : idx !== currentQ.correct && quizAnswered
+                      : idx === quizSelectedAnswer
                       ? "wrong"
-                      : ""
+                      : "dim"
                     : ""
                 }`}
                 onClick={() => answerQuiz(idx)}
@@ -1408,10 +1422,13 @@ export default function Home() {
 
           {quizAnswered && (
             <div className={`quiz-feedback ${quizCorrect ? "correct" : "wrong"}`}>
-              {quizCorrect ? "CORRETO!" : "INCORRETO!"}
-              {quizCorrect && <span className="prize-gained">+{currentQ.prize.toLocaleString()}</span>}
+              <div className="quiz-feedback-top">
+                {quizCorrect ? "✓ CORRETO!" : "✗ INCORRETO!"}
+                {quizCorrect && <span className="prize-gained">+{currentQ.prize.toLocaleString()}</span>}
+              </div>
+              <p className="quiz-explanation">{currentQ.explanation}</p>
               <button className="btn-next" onClick={nextQuestion}>
-                PRÓXIMA
+                PRÓXIMA →
               </button>
             </div>
           )}
@@ -1465,7 +1482,11 @@ export default function Home() {
             <span className="score-value">{score}</span>
           </div>
           <div className="safety-message">
-            <p>{safetyMessage}</p>
+            <span className="safety-message-icon">💡</span>
+            <div>
+              <span className="safety-message-label">DICA DE SEGURANÇA</span>
+              <p>{safetyMessage}</p>
+            </div>
           </div>
           <div className="gameover-buttons">
             <button className="btn-play" onClick={initGame}>

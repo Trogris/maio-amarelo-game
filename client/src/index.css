@@ -977,10 +977,29 @@
 
 .safety-message {
   background: rgba(253, 216, 53, 0.1);
-  border: 1px solid rgba(253, 216, 53, 0.3);
+  border: 1px solid rgba(253, 216, 53, 0.4);
   border-radius: 12px;
-  padding: 1rem 1.5rem;
-  max-width: 320px;
+  padding: 1rem 1.25rem;
+  max-width: 340px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.safety-message-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.safety-message-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: #FDD835;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
 }
 
 .safety-message p {
@@ -1143,14 +1162,35 @@
 
 .quiz-feedback {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
   font-weight: 700;
   font-size: 1.1rem;
   padding: 1rem;
   border-radius: 10px;
   width: 100%;
   justify-content: center;
+}
+
+.quiz-feedback-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.quiz-explanation {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: rgba(255,255,255,0.85);
+  margin: 0;
+  line-height: 1.4;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 0.5rem;
+}
+
+.quiz-option.dim {
+  opacity: 0.4;
 }
 
 .quiz-feedback.correct {
