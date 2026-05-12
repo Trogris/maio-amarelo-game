@@ -411,10 +411,25 @@ export default function Home() {
     let consec = 0;
     let sectionCW = randCW();
     for (let i = 3; i < VISIBLE_ROWS + 20; i++) {
-      if (consec === 0) sectionCW = randCW();
+      if (consec === 0) {
+        sectionCW = randCW();
+        // Limpar árvores nas colunas da faixa nas gramas anteriores (entrada)
+        for (let k = lanes.length - 1; k >= 0 && lanes[k].type === "grass"; k--) {
+          lanes[k].hasTrees[sectionCW] = false;
+          lanes[k].hasTrees[sectionCW + 1] = false;
+        }
+      }
       const lane = generateLane(i, 0, sectionCW, consec);
       consec = lane.type === "road" ? consec + 1 : 0;
       lanes.push(lane);
+      // Quando termina a seção (próxima seria grama), registrar para limpar saída
+      if (lane.type === "grass" && lanes.length > 1) {
+        const prev = lanes[lanes.length - 2];
+        if (prev.type === "road") {
+          lane.hasTrees[prev.crosswalkStart] = false;
+          lane.hasTrees[prev.crosswalkStart + 1] = false;
+        }
+      }
     }
     lanesRef.current = lanes;
 
@@ -596,10 +611,14 @@ export default function Home() {
         case "road":
           ctx.fillStyle = "#424242";
           ctx.fillRect(0, y, canvas.width, TILE_SIZE);
-          // Linha tracejada central
+          // Linha tracejada central (omite na área da faixa de pedestres)
           ctx.fillStyle = "#BDBDBD";
+          const cwX0 = lane.crosswalkStart * TILE_SIZE;
+          const cwX1 = cwX0 + CROSSWALK_WIDTH * TILE_SIZE;
           for (let dx = 0; dx < canvas.width; dx += 40) {
-            ctx.fillRect(dx, y + TILE_SIZE / 2 - 1, 20, 2);
+            if (dx + 20 <= cwX0 || dx >= cwX1) {
+              ctx.fillRect(dx, y + TILE_SIZE / 2 - 1, 20, 2);
+            }
           }
           // Faixa de pedestres na posição da lane
           drawCrosswalk(ctx, y, lane.crosswalkStart);
@@ -735,10 +754,11 @@ export default function Home() {
     const x0 = cwStart * TILE_SIZE;
     const w = CROSSWALK_WIDTH * TILE_SIZE;
     const stripeW = 6;
-    const gap = Math.floor((w - 4) / 5) - stripeW;
+    const totalW = w - 4;
+    const spacing = (totalW - stripeW * 4) / 3;
     ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-    for (let sx = x0 + 2; sx < x0 + w - 2; sx += stripeW + gap) {
-      ctx.fillRect(sx, y + 2, stripeW, TILE_SIZE - 4);
+    for (let i = 0; i < 4; i++) {
+      ctx.fillRect(x0 + 2 + i * (stripeW + spacing), y + 2, stripeW, TILE_SIZE - 4);
     }
   };
 
@@ -859,7 +879,18 @@ export default function Home() {
           const sectionCW = consec === 0
             ? 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1))
             : prevCW;
-          lanesRef.current.push(generateLane(lanesRef.current.length, difficulty, sectionCW, consec));
+          if (consec === 0) {
+            for (let k = last.length - 1; k >= 0 && last[k].type === "grass"; k--) {
+              last[k].hasTrees[sectionCW] = false;
+              last[k].hasTrees[sectionCW + 1] = false;
+            }
+          }
+          const newLane = generateLane(lanesRef.current.length, difficulty, sectionCW, consec);
+          lanesRef.current.push(newLane);
+          if (newLane.type === "grass" && last.length > 0 && last[last.length - 1].type === "road") {
+            newLane.hasTrees[last[last.length - 1].crosswalkStart] = false;
+            newLane.hasTrees[last[last.length - 1].crosswalkStart + 1] = false;
+          }
         }
         const upLane = lanesRef.current[player.row];
         // Penalidade por atravessar fora da faixa
