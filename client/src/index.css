@@ -112,8 +112,11 @@
 }
 
 /* LOGIN SCREEN */
+/* ════════════════════════════════════════
+   LOGIN — estilo clean/light
+   ════════════════════════════════════════ */
 .login-screen {
-  background: linear-gradient(160deg, #0f1b35 0%, #1a1a2e 50%, #0f2a1e 100%);
+  background: #e8edf4;
 }
 
 .login-content {
@@ -121,99 +124,75 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 0;
   padding: 0;
-  text-align: center;
-  background: transparent;
+  text-align: left;
+  background: #ffffff;
   border-radius: 20px;
-  border: 1px solid rgba(253, 216, 53, 0.25);
-  max-width: 420px;
+  border: none;
+  max-width: 440px;
   width: 92%;
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-/* ── Faixa dos logos ── */
+/* Acento amarelo no topo do card */
+.login-content::before {
+  content: "";
+  display: block;
+  height: 4px;
+  background: linear-gradient(90deg, #FDD835 0%, #f9a825 100%);
+}
+
+/* ── Logos ── */
 .login-logos {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 2rem 2rem 1.6rem;
-  background: linear-gradient(180deg, #1a2a4a 0%, #0f1b35 100%);
-  gap: 2.5rem;
-  position: relative;
+  justify-content: flex-start;
+  gap: 1.2rem;
+  padding: 1.6rem 2rem 1.2rem;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.login-logos::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #FDD835 0%, #00a3d2 100%);
-}
-
-/* Círculo container de cada logo */
-.login-logo-circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.12);
-  flex-shrink: 0;
-  overflow: hidden;
-  padding: 10px;
-}
-
-.login-logo-circle:first-child {
-  box-shadow: 0 4px 20px rgba(0, 163, 210, 0.35), 0 0 0 3px rgba(0, 163, 210, 0.25);
-}
-
-.login-logo-circle:last-child {
-  box-shadow: 0 4px 20px rgba(253, 216, 53, 0.3), 0 0 0 3px rgba(253, 216, 53, 0.2);
-}
+.login-logo-circle { display: contents; }
 
 .login-logo-instituto {
-  width: 100%;
-  height: 100%;
+  height: 52px;
+  width: auto;
   object-fit: contain;
 }
 
 .login-logo-fiscaltech {
-  width: 100%;
-  height: 100%;
+  height: 38px;
+  width: auto;
   object-fit: contain;
+  border-left: 1px solid #e0e0e0;
+  padding-left: 1.2rem;
 }
 
 /* ── Área do formulário ── */
 .login-form-area {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1.2rem;
-  padding: 1.8rem 2rem 2rem;
+  padding: 1.8rem 2rem 2.2rem;
   width: 100%;
-  background: rgba(15, 20, 40, 0.97);
 }
 
 .login-title {
-  font-size: 2rem;
-  font-weight: 900;
-  color: #FDD835;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #1a1a2e;
   margin: 0;
   letter-spacing: -0.5px;
 }
 
 .login-subtitle {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
+  font-size: 0.88rem;
+  color: #00a3d2;
+  margin: -0.6rem 0 0;
+  font-weight: 500;
 }
 
 .login-form {
@@ -226,70 +205,103 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .form-group label {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 600;
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 700;
   text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .form-group input {
-  padding: 0.75rem;
-  border: 1px solid rgba(253, 216, 53, 0.3);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #e0e4ea;
+  border-radius: 10px;
+  background: #f8f9fb;
+  color: #1a1a2e;
+  font-size: 0.97rem;
   font-family: 'Arial', sans-serif;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: rgba(253, 216, 53, 0.6);
-  background: rgba(255, 255, 255, 0.1);
+  border-color: #FDD835;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(253, 216, 53, 0.15);
 }
 
 .form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: #b0b8c4;
 }
 
 .form-error {
-  color: #E53935;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
+  color: #d32f2f;
+  font-size: 0.83rem;
+  margin: 0;
+  font-weight: 500;
 }
 
 .form-help {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
+  color: #999;
+  font-size: 0.8rem;
+  margin: 0;
 }
 
 .login-mode-indicator {
-  font-size: 0.85rem;
-  color: rgba(253, 216, 53, 0.7);
-  margin-bottom: 0.5rem;
+  font-size: 0.83rem;
+  color: #00a3d2;
+  font-weight: 600;
+  margin: 0;
 }
 
 .btn-switch-user {
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
+  color: #00a3d2;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0;
   font-size: 0.85rem;
   cursor: pointer;
   text-decoration: underline;
   font-family: 'Arial', sans-serif;
   transition: color 0.2s;
-  margin-top: 0.5rem;
+  text-align: left;
 }
 
 .btn-switch-user:hover {
-  color: rgba(255, 255, 255, 0.9);
+  color: #007aa0;
+}
+
+/* Overrides do btn-play dentro do login */
+.login-form-area .btn-play {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(253, 216, 53, 0.35);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #00a3d2;
+  border: 1.5px solid #00a3d2;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Arial', sans-serif;
+  transition: background 0.15s, color 0.15s;
+  width: 100%;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #00a3d2;
+  color: #fff;
 }
 
 /* MENU SCREEN */

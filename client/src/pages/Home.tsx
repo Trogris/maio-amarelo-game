@@ -1094,12 +1094,8 @@ export default function Home() {
       <div className="game-container login-screen">
         <div className="login-content">
           <div className="login-logos">
-            <div className="login-logo-circle">
-              <img src="/logo-instituto.svg" alt="Instituto Motorista do Amanhã" className="login-logo-instituto" />
-            </div>
-            <div className="login-logo-circle">
-              <img src="/logo-fiscaltech.svg" alt="FiscalTech" className="login-logo-fiscaltech" />
-            </div>
+            <img src="/logo-instituto.svg" alt="Instituto Motorista do Amanhã" className="login-logo-instituto" />
+            <img src="/logo-fiscaltech.svg" alt="FiscalTech" className="login-logo-fiscaltech" />
           </div>
           <div className="login-form-area">
           <h1 className="login-title">Travessia Segura</h1>
