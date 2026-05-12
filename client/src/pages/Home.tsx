@@ -15,7 +15,8 @@ const VISIBLE_ROWS = 14;
 const PLAYER_Y_OFFSET = 2;
 const MAX_ROWS = 40;
 const MAX_LIVES = 5;
-const CROSSWALK_WIDTH = 3;
+const CROSSWALK_WIDTH = 2;
+const MAX_ROAD_LANES = 3;
 const PENALTY_POINTS = 20;
 
 const CROSSWALK_PENALTY_MESSAGES = [
@@ -150,12 +151,17 @@ interface Item {
 
 const VEHICLE_COLORS = ["#E53935", "#1E88E5", "#FFFFFF", "#FDD835", "#7B1FA2", "#FF6D00", "#00897B"];
 
-function generateLane(row: number, difficulty: number, crosswalkStart: number = 3): Lane {
+function generateLane(row: number, difficulty: number, crosswalkStart: number = 3, consecutiveRoads: number = 0): Lane {
   const rand = Math.random();
   let type: LaneType;
 
-  const grassChance = Math.max(0.06, 0.28 - difficulty * 0.07);
-  type = rand < grassChance ? "grass" : "road";
+  // Força canteiro após MAX_ROAD_LANES faixas seguidas de rua
+  if (consecutiveRoads >= MAX_ROAD_LANES) {
+    type = "grass";
+  } else {
+    const grassChance = Math.max(0.06, 0.28 - difficulty * 0.07);
+    type = rand < grassChance ? "grass" : "road";
+  }
 
   const baseSpeed = 0.5 + difficulty * 0.6;
   const speed = type === "road" ? baseSpeed + Math.random() * (0.8 + difficulty * 0.15) : 0;
@@ -402,8 +408,11 @@ export default function Home() {
       });
     }
     crosswalkColRef.current = 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1));
+    let consec = 0;
     for (let i = 3; i < VISIBLE_ROWS + 20; i++) {
-      lanes.push(generateLane(i, 0, crosswalkColRef.current));
+      const lane = generateLane(i, 0, crosswalkColRef.current, consec);
+      consec = lane.type === "road" ? consec + 1 : 0;
+      lanes.push(lane);
     }
     lanesRef.current = lanes;
 
@@ -723,11 +732,11 @@ export default function Home() {
   const drawCrosswalk = (ctx: CanvasRenderingContext2D, y: number, cwStart: number) => {
     const x0 = cwStart * TILE_SIZE;
     const w = CROSSWALK_WIDTH * TILE_SIZE;
-    const stripeW = 7;
-    const gap = 6;
-    ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-    for (let sx = x0 + 4; sx < x0 + w - 4; sx += stripeW + gap) {
-      ctx.fillRect(sx, y + 2, stripeW, TILE_SIZE - 4);
+    const stripeH = 7;
+    const gap = 5;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    for (let sy = y + 3; sy < y + TILE_SIZE - 3; sy += stripeH + gap) {
+      ctx.fillRect(x0 + 2, sy, w - 4, stripeH);
     }
   };
 
@@ -841,7 +850,10 @@ export default function Home() {
         player.row += 1;
         while (lanesRef.current.length <= player.row + VISIBLE_ROWS) {
           const difficulty = Math.min(player.row / 4, 3);
-          lanesRef.current.push(generateLane(lanesRef.current.length, difficulty, crosswalkColRef.current));
+          const last = lanesRef.current;
+          let consec = 0;
+          for (let k = last.length - 1; k >= 0 && last[k].type === "road"; k--) consec++;
+          lanesRef.current.push(generateLane(lanesRef.current.length, difficulty, crosswalkColRef.current, consec));
         }
         const upLane = lanesRef.current[player.row];
         if (upLane.type === "grass" && upLane.hasTrees[player.col]) {
