@@ -28,21 +28,11 @@ const CROSSWALK_PENALTY_MESSAGES = [
 ];
 
 const SAFETY_MESSAGES = [
-  "Respeite a faixa de pedestres!",
-  "Olhe para os dois lados antes de atravessar.",
-  "Não use o celular ao atravessar a rua.",
-  "Respeite os sinais de trânsito.",
-  "A pressa é inimiga da segurança.",
-  "Pedestres têm prioridade na faixa.",
-  "Atenção redobrada em dias de chuva!",
-  "Seja visível: use roupas claras à noite.",
-  "Velocidade mata. Reduza e salve vidas.",
-  "Atravesse sempre na faixa de pedestres.",
-  "Sinalize suas intenções no trânsito.",
-  "Crianças e idosos precisam de mais atenção.",
-  "Um segundo de distração pode custar uma vida.",
-  "Respeitar o trânsito é respeitar a vida.",
-  "Gentileza no trânsito salva vidas.",
+  "Cinto de segurança salva vidas.",
+  "Se beber, não dirija.",
+  "No trânsito, enxergar o outro é salvar vidas. Maio Amarelo.",
+  "Álcool e direção não combinam. Mesmo uma dose compromete os reflexos.",
+  "Cada km/h acima do limite aumenta o risco de acidente. Respeite a sinalização.",
 ];
 
 // Quiz até 1 milhão (11 perguntas)
