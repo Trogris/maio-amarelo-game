@@ -755,13 +755,13 @@ export default function Home() {
   const drawCrosswalk = (ctx: CanvasRenderingContext2D, y: number, cwStart: number) => {
     const x0 = cwStart * TILE_SIZE;
     const w = CROSSWALK_WIDTH * TILE_SIZE;
-    const stripeW = 10;
+    const stripeH = 10;
     const gap = 7;
-    const totalUsed = stripeW * 4 + gap * 3;
-    const offsetX = (w - totalUsed) / 2;
+    const totalUsed = stripeH * 4 + gap * 3;
+    const offsetY = (TILE_SIZE - totalUsed) / 2;
     ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
     for (let i = 0; i < 4; i++) {
-      ctx.fillRect(x0 + offsetX + i * (stripeW + gap), y + 2, stripeW, TILE_SIZE - 4);
+      ctx.fillRect(x0 + 2, y + offsetY + i * (stripeH + gap), w - 4, stripeH);
     }
   };
 
