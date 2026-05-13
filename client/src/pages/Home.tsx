@@ -1073,9 +1073,18 @@ export default function Home() {
 
   const openRanking = async () => {
     const allPlayers = await getRanking();
-    setRanking(allPlayers);
+    // DEMO: dados de exemplo para visualização — remover antes do lançamento
+    const demoPlayers: Player[] = [
+      { id: 99901, name: "Ana Paula Silva", sector: "RH", email: "ana@empresa.com", gameScore: 42, quizScore: 1000000, vofScore: 120, totalScore: 1000162, createdAt: "", updatedAt: "" },
+      { id: 99902, name: "Carlos Mendonça", sector: "TI", email: "carlos@empresa.com", gameScore: 38, quizScore: 800000, vofScore: 98, totalScore: 800136, createdAt: "", updatedAt: "" },
+      { id: 99903, name: "Fernanda Costa", sector: "Comercial", email: "fernanda@empresa.com", gameScore: 35, quizScore: 500000, vofScore: 110, totalScore: 500145, createdAt: "", updatedAt: "" },
+      { id: 99904, name: "Roberto Lima", sector: "Financeiro", email: "roberto@empresa.com", gameScore: 30, quizScore: 300000, vofScore: 85, totalScore: 300115, createdAt: "", updatedAt: "" },
+      { id: 99905, name: "Juliana Ramos", sector: "Marketing", email: "juliana@empresa.com", gameScore: 28, quizScore: 100000, vofScore: 90, totalScore: 100118, createdAt: "", updatedAt: "" },
+    ];
+    const merged = [...allPlayers, ...demoPlayers].sort((a, b) => b.totalScore - a.totalScore);
+    setRanking(merged);
     if (currentPlayer) {
-      const rank = await getPlayerRankFunc(currentPlayer.id);
+      const rank = merged.findIndex(p => p.id === currentPlayer.id) + 1;
       setPlayerRank(rank);
     }
     setGameState("ranking");
