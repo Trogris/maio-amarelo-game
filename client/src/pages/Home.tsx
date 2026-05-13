@@ -17,7 +17,7 @@ const MAX_ROWS = 40;
 const MAX_LIVES = 5;
 const CROSSWALK_WIDTH = 2;
 const MAX_ROAD_LANES = 3;
-const PENALTY_POINTS = 20;
+const PENALTY_POINTS = 10;
 
 const CROSSWALK_PENALTY_MESSAGES = [
   "Use a faixa! É mais seguro.",
@@ -879,15 +879,12 @@ export default function Home() {
   const applyRoadPenalty = useCallback((row: number, col: number) => {
     const lane = lanesRef.current[row];
     if (lane?.type === "road") {
-      const cwEnd = lane.crosswalkStart + CROSSWALK_WIDTH - 1;
-      if (col < lane.crosswalkStart || col > cwEnd) {
-        scoreRef.current = Math.max(0, scoreRef.current - PENALTY_POINTS);
-        setScore(scoreRef.current);
-        const msg = CROSSWALK_PENALTY_MESSAGES[Math.floor(Math.random() * CROSSWALK_PENALTY_MESSAGES.length)];
-        setPenaltyTip(msg);
-        if (penaltyTipTimeoutRef.current) clearTimeout(penaltyTipTimeoutRef.current);
-        penaltyTipTimeoutRef.current = setTimeout(() => setPenaltyTip(""), 2500);
-      }
+      scoreRef.current = Math.max(0, scoreRef.current - PENALTY_POINTS);
+      setScore(scoreRef.current);
+      const msg = CROSSWALK_PENALTY_MESSAGES[Math.floor(Math.random() * CROSSWALK_PENALTY_MESSAGES.length)];
+      setPenaltyTip(msg);
+      if (penaltyTipTimeoutRef.current) clearTimeout(penaltyTipTimeoutRef.current);
+      penaltyTipTimeoutRef.current = setTimeout(() => setPenaltyTip(""), 2500);
     }
   }, []);
 
@@ -1258,15 +1255,15 @@ export default function Home() {
           <div className="menu-stats">
             <div className="stat">
               <span className="stat-label">Jogo</span>
-              <span className="stat-value">{currentPlayer?.gameScore || 0}</span>
+              <span className="stat-value">{(currentPlayer?.gameScore || 0).toLocaleString('pt-BR')}</span>
             </div>
             <div className="stat">
               <span className="stat-label">Quiz</span>
-              <span className="stat-value">{currentPlayer?.quizScore || 0}</span>
+              <span className="stat-value">{(currentPlayer?.quizScore || 0).toLocaleString('pt-BR')}</span>
             </div>
             <div className="stat">
               <span className="stat-label">Total</span>
-              <span className="stat-value">{currentPlayer?.totalScore || 0}</span>
+              <span className="stat-value">{(currentPlayer?.totalScore || 0).toLocaleString('pt-BR')}</span>
             </div>
           </div>
 
@@ -1348,7 +1345,7 @@ export default function Home() {
                 <span className="rank">#{idx + 1}</span>
                 <span className="name">{player.name}</span>
                 <span className="sector">{player.sector}</span>
-                <span className="score">{player.totalScore}</span>
+                <span className="score">{player.totalScore.toLocaleString('pt-BR')}</span>
               </div>
             ))}
             {playerRank > 5 && currentPlayer && (
@@ -1358,7 +1355,7 @@ export default function Home() {
                   <span className="rank">#{playerRank}</span>
                   <span className="name">{currentPlayer.name}</span>
                   <span className="sector">{currentPlayer.sector}</span>
-                  <span className="score">{currentPlayer.totalScore}</span>
+                  <span className="score">{currentPlayer.totalScore.toLocaleString('pt-BR')}</span>
                 </div>
               </>
             )}
@@ -1383,7 +1380,7 @@ export default function Home() {
             <h2 className="quiz-title">Fim do Quiz</h2>
             <div className="quiz-result">
               <p className="quiz-score-text">
-                Você acumulou: <strong>{quizScore.toLocaleString()}</strong> pontos
+                Você acumulou: <strong>{quizScore.toLocaleString('pt-BR')}</strong> pontos
               </p>
               {quizScore >= 1100 && (
                 <p className="quiz-perfect">Perfeito! Você acertou tudo!</p>
@@ -1420,7 +1417,7 @@ export default function Home() {
               </span>
             </div>
             <div className="quiz-prize">
-              Acumulado: <strong>{accumulatedPrize.toLocaleString()}</strong>
+              Acumulado: <strong>{accumulatedPrize.toLocaleString('pt-BR')}</strong>
             </div>
           </div>
 
@@ -1452,7 +1449,7 @@ export default function Home() {
             <div className={`quiz-feedback ${quizCorrect ? "correct" : "wrong"}`}>
               <div className="quiz-feedback-top">
                 {quizCorrect ? "✓ CORRETO!" : "✗ INCORRETO!"}
-                {quizCorrect && <span className="prize-gained">+{currentQ.prize.toLocaleString()}</span>}
+                {quizCorrect && <span className="prize-gained">+{currentQ.prize.toLocaleString('pt-BR')}</span>}
               </div>
               <p className="quiz-explanation">{currentQ.explanation}</p>
               <button className="btn-next" onClick={nextQuestion}>
@@ -1479,7 +1476,7 @@ export default function Home() {
           <h2 className="gameover-title" style={{ color: "#66BB6A" }}>Missão Cumprida!</h2>
           <div className="gameover-score">
             <span className="score-label">PONTUAÇÃO FINAL</span>
-            <span className="score-value">{score}</span>
+            <span className="score-value">{score.toLocaleString('pt-BR')}</span>
           </div>
           <div className="safety-message">
             <p>Você atravessou com segurança todas as {MAX_ROWS} ruas!</p>
@@ -1507,7 +1504,7 @@ export default function Home() {
           <h2 className="gameover-title">Fim de Jogo</h2>
           <div className="gameover-score">
             <span className="score-label">PONTUAÇÃO</span>
-            <span className="score-value">{score}</span>
+            <span className="score-value">{score.toLocaleString('pt-BR')}</span>
           </div>
           <div className="safety-message">
             <p>{safetyMessage}</p>
@@ -1540,7 +1537,7 @@ export default function Home() {
       <div className="hud-bar">
         <div className="hud-score">
           <div className="hud-label">SCORE</div>
-          <div className="hud-value">{score}</div>
+          <div className="hud-value">{score.toLocaleString('pt-BR')}</div>
         </div>
         <div className="hud-coins">
           <div className="hud-label hud-coin-icon">●</div>
