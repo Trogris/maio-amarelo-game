@@ -1266,6 +1266,10 @@ export default function Home() {
               <span className="stat-value">{(currentPlayer?.quizScore || 0).toLocaleString('pt-BR')}</span>
             </div>
             <div className="stat">
+              <span className="stat-label">V ou F</span>
+              <span className="stat-value">{(currentPlayer?.vofScore || 0).toLocaleString('pt-BR')}</span>
+            </div>
+            <div className="stat">
               <span className="stat-label">Total</span>
               <span className="stat-value">{(currentPlayer?.totalScore || 0).toLocaleString('pt-BR')}</span>
             </div>
