@@ -516,7 +516,7 @@ export default function Home() {
               setSafetyMessage(SAFETY_MESSAGES[Math.floor(Math.random() * SAFETY_MESSAGES.length)]);
               setScore(finalScore);
               const p = currentPlayerRef.current;
-              if (p) updateGameScore(p.id, finalScore).catch(console.error);
+              if (p) updateGameScore(p.id, finalScore).then(updated => { if (updated) setCurrentPlayer(updated); }).catch(console.error);
               // iniciar animação de explosão
               const pyScreen = canvas.height - (PLAYER_Y_OFFSET + 1) * TILE_SIZE + TILE_SIZE / 2;
               explosionRef.current = { frame: 0, x: player.x, y: pyScreen };
@@ -569,7 +569,7 @@ export default function Home() {
       const finalScore = scoreRef.current + collectedItemsRef.current * 25 + livesRef.current * 100;
       setScore(finalScore);
       const p = currentPlayerRef.current;
-      if (p) updateGameScore(p.id, finalScore).catch(console.error);
+      if (p) updateGameScore(p.id, finalScore).then(updated => { if (updated) setCurrentPlayer(updated); }).catch(console.error);
       setTimeout(() => setGameState("won"), 500);
       return;
     }
@@ -1122,7 +1122,7 @@ export default function Home() {
     explosionRef.current = null;
     const finalScore = scoreRef.current + collectedItemsRef.current * 25 + livesRef.current * 100;
     if (currentPlayerRef.current) {
-      updateGameScore(currentPlayerRef.current.id, finalScore).catch(console.error);
+      updateGameScore(currentPlayerRef.current.id, finalScore).then(updated => { if (updated) setCurrentPlayer(updated); }).catch(console.error);
     }
     setGameState("menu");
   }, []);
@@ -1307,7 +1307,14 @@ export default function Home() {
   // VERDADEIRO OU FALSO RELÂMPAGO
   // ============================================================
   if (gameState === "trueorfalse") {
-    return <TrueOrFalseGame player={currentPlayer} onExit={() => setGameState("menu")} />;
+    return <TrueOrFalseGame player={currentPlayer} onExit={async () => {
+      const email = localStorage.getItem("maio_amarelo_email");
+      if (email) {
+        const updated = await getPlayerByEmail(email);
+        if (updated) setCurrentPlayer(updated);
+      }
+      setGameState("menu");
+    }} />;
   }
 
   // ============================================================
