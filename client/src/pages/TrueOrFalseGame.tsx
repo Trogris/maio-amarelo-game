@@ -97,8 +97,8 @@ export default function TrueOrFalseGame({ player, onExit }: Props) {
       timeAtAnswerRef.current = timer;
       const current = STATEMENTS[index];
       const isCorrect = answer === current.answer;
-      const timeBonus = isCorrect ? timeAtAnswerRef.current * 2 : 0;
-      const points = isCorrect ? 10 + timeBonus : 0;
+      const timeBonus = isCorrect ? timeAtAnswerRef.current * 6 : 0;
+      const points = isCorrect ? 70 + timeBonus : 0;
       setUserAnswer(answer);
       setPhase("feedback");
       if (isCorrect) {
@@ -282,7 +282,7 @@ export default function TrueOrFalseGame({ player, onExit }: Props) {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M20 6L9 17l-5-5" stroke="#66BB6A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Correto! +{10 + timeAtAnswerRef.current * 2} pts
+                Correto! +{70 + timeAtAnswerRef.current * 6} pts
               </>
             ) : (
               <>

@@ -35,83 +35,83 @@ const SAFETY_MESSAGES = [
   "Cada km/h acima do limite aumenta o risco de acidente. Respeite a sinalização.",
 ];
 
-// Quiz até 1 milhão (11 perguntas)
+// Quiz — 100 pts por acerto (11 perguntas, máx 1.100 pts)
 const QUIZ_QUESTIONS = [
   {
     question: "Qual a velocidade máxima em vias urbanas sem sinalização?",
     options: ["40 km/h", "50 km/h", "60 km/h", "80 km/h"],
     correct: 1,
-    prize: 1000,
+    prize: 100,
     explanation: "O CTB define 50 km/h como velocidade máxima em vias urbanas sem sinalização específica.",
   },
   {
     question: "O que significa a faixa amarela contínua no centro da via?",
     options: ["Pode ultrapassar", "Proibido ultrapassar", "Via de mão única", "Área escolar"],
     correct: 1,
-    prize: 2000,
+    prize: 100,
     explanation: "A faixa amarela contínua indica proibição de ultrapassagem nos dois sentidos.",
   },
   {
     question: "Qual o significado do sinal amarelo do semáforo?",
     options: ["Acelerar para passar", "Atenção/Parar se possível", "Seguir em frente", "Dar ré"],
     correct: 1,
-    prize: 3000,
+    prize: 100,
     explanation: "O amarelo indica atenção: o condutor deve reduzir a velocidade e parar se for seguro fazê-lo.",
   },
   {
     question: "Quem tem prioridade na faixa de pedestres?",
     options: ["Veículos", "Pedestres", "Ciclistas", "Motocicletas"],
     correct: 1,
-    prize: 5000,
+    prize: 100,
     explanation: "O pedestre tem total prioridade na faixa de pedestres. O condutor deve parar e aguardar.",
   },
   {
     question: "É permitido usar celular ao dirigir?",
     options: ["Sim, em vias lentas", "Apenas mensagens", "Não, é infração gravíssima", "Sim, com fone"],
     correct: 2,
-    prize: 10000,
+    prize: 100,
     explanation: "Usar o celular ao volante é infração gravíssima com multa de R$293,47 e 7 pontos na CNH.",
   },
   {
     question: "Qual a distância mínima para seguir outro veículo?",
     options: ["1 carro", "2 segundos", "5 metros", "Não há regra"],
     correct: 1,
-    prize: 20000,
+    prize: 100,
     explanation: "A regra dos 2 segundos garante tempo de reação suficiente para frear com segurança.",
   },
   {
     question: "O que o Maio Amarelo representa?",
     options: ["Mês do trânsito", "Conscientização sobre segurança no trânsito", "Dia do motorista", "Semana da mobilidade"],
     correct: 1,
-    prize: 50000,
+    prize: 100,
     explanation: "O Maio Amarelo é um movimento mundial de conscientização para reduzir mortes no trânsito.",
   },
   {
     question: "Qual a principal causa de acidentes no trânsito?",
     options: ["Falha mecânica", "Condições da via", "Falta de atenção do condutor", "Clima"],
     correct: 2,
-    prize: 100000,
+    prize: 100,
     explanation: "Mais de 70% dos acidentes são causados por fatores humanos como distração e excesso de velocidade.",
   },
   {
     question: "Qual é a idade mínima para dirigir no Brasil?",
     options: ["16 anos", "17 anos", "18 anos", "21 anos"],
     correct: 2,
-    prize: 300000,
+    prize: 100,
     explanation: "No Brasil, a CNH pode ser obtida a partir dos 18 anos, exceto para categorias especiais.",
   },
   {
     question: "O que fazer se o freio falhar enquanto dirige?",
     options: ["Usar o freio de mão gradualmente", "Desligar o motor", "Procurar um local seguro para parar", "Todas as anteriores"],
     correct: 3,
-    prize: 500000,
+    prize: 100,
     explanation: "Em caso de falha de freios, a combinação das três ações é a mais segura para parar o veículo.",
   },
   {
     question: "Qual é o objetivo principal do Maio Amarelo?",
     options: ["Aumentar vendas de carros", "Reduzir acidentes de trânsito", "Arrecadar impostos", "Promover eventos"],
     correct: 1,
-    prize: 1000000,
+    prize: 100,
     explanation: "O Maio Amarelo busca reduzir o número de mortes e lesões no trânsito através da educação.",
   },
 ];
@@ -1094,16 +1094,16 @@ export default function Home() {
     const allPlayers = await getRanking();
     // DEMO: dados de exemplo para visualização — remover antes do lançamento
     const demoPlayers: Player[] = [
-      { id: 99901, name: "Ana Paula Silva", sector: "RH", email: "ana@empresa.com", gameScore: 42, quizScore: 1000000, vofScore: 120, totalScore: 1000162, createdAt: "", updatedAt: "" },
-      { id: 99902, name: "Carlos Mendonça", sector: "TI", email: "carlos@empresa.com", gameScore: 38, quizScore: 800000, vofScore: 98, totalScore: 800136, createdAt: "", updatedAt: "" },
-      { id: 99903, name: "Fernanda Costa", sector: "Comercial", email: "fernanda@empresa.com", gameScore: 35, quizScore: 500000, vofScore: 110, totalScore: 500145, createdAt: "", updatedAt: "" },
-      { id: 99904, name: "Roberto Lima", sector: "Financeiro", email: "roberto@empresa.com", gameScore: 30, quizScore: 300000, vofScore: 85, totalScore: 300115, createdAt: "", updatedAt: "" },
-      { id: 99905, name: "Juliana Ramos", sector: "Marketing", email: "juliana@empresa.com", gameScore: 28, quizScore: 100000, vofScore: 90, totalScore: 100118, createdAt: "", updatedAt: "" },
+      { id: 99901, name: "Ana Paula Silva", sector: "RH", email: "ana@empresa.com", gameScore: 980, quizScore: 1100, vofScore: 950, totalScore: 3030, createdAt: "", updatedAt: "" },
+      { id: 99902, name: "Carlos Mendonça", sector: "TI", email: "carlos@empresa.com", gameScore: 920, quizScore: 1000, vofScore: 880, totalScore: 2800, createdAt: "", updatedAt: "" },
+      { id: 99903, name: "Fernanda Costa", sector: "Comercial", email: "fernanda@empresa.com", gameScore: 870, quizScore: 900, vofScore: 820, totalScore: 2590, createdAt: "", updatedAt: "" },
+      { id: 99904, name: "Roberto Lima", sector: "Financeiro", email: "roberto@empresa.com", gameScore: 810, quizScore: 800, vofScore: 750, totalScore: 2360, createdAt: "", updatedAt: "" },
+      { id: 99905, name: "Juliana Ramos", sector: "Marketing", email: "juliana@empresa.com", gameScore: 760, quizScore: 700, vofScore: 680, totalScore: 2140, createdAt: "", updatedAt: "" },
     ];
     // Gerar 42 jogadores fictícios para simular posição #48
     const extraPlayers: Player[] = Array.from({ length: 42 }, (_, i) => ({
       id: 99910 + i, name: `Jogador ${i + 6}`, sector: "Equipe", email: `jogador${i+6}@empresa.com`,
-      gameScore: 0, quizScore: 1000 - i * 20, vofScore: 0, totalScore: 1000 - i * 20,
+      gameScore: 0, quizScore: 2100 - i * 45, vofScore: 0, totalScore: 2100 - i * 45,
       createdAt: "", updatedAt: ""
     }));
     const merged = [...allPlayers, ...demoPlayers, ...extraPlayers].sort((a, b) => b.totalScore - a.totalScore);
@@ -1385,13 +1385,13 @@ export default function Home() {
               <p className="quiz-score-text">
                 Você acumulou: <strong>{quizScore.toLocaleString()}</strong> pontos
               </p>
-              {quizScore >= 1000000 && (
-                <p className="quiz-perfect">Parabéns! Você conquistou 1 MILHÃO!</p>
+              {quizScore >= 1100 && (
+                <p className="quiz-perfect">Perfeito! Você acertou tudo!</p>
               )}
-              {quizScore >= 500000 && quizScore < 1000000 && (
+              {quizScore >= 700 && quizScore < 1100 && (
                 <p className="quiz-good">Excelente desempenho! Muito conhecimento!</p>
               )}
-              {quizScore < 500000 && (
+              {quizScore < 700 && (
                 <p className="quiz-improve">Que tal estudar mais sobre segurança no trânsito?</p>
               )}
             </div>
