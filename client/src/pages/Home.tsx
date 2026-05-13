@@ -876,6 +876,21 @@ export default function Home() {
     ctx.fillRect(x + 1, y + 10, 9, 10);
   };
 
+  const applyRoadPenalty = useCallback((row: number, col: number) => {
+    const lane = lanesRef.current[row];
+    if (lane?.type === "road") {
+      const cwEnd = lane.crosswalkStart + CROSSWALK_WIDTH - 1;
+      if (col < lane.crosswalkStart || col > cwEnd) {
+        scoreRef.current = Math.max(0, scoreRef.current - PENALTY_POINTS);
+        setScore(scoreRef.current);
+        const msg = CROSSWALK_PENALTY_MESSAGES[Math.floor(Math.random() * CROSSWALK_PENALTY_MESSAGES.length)];
+        setPenaltyTip(msg);
+        if (penaltyTipTimeoutRef.current) clearTimeout(penaltyTipTimeoutRef.current);
+        penaltyTipTimeoutRef.current = setTimeout(() => setPenaltyTip(""), 2500);
+      }
+    }
+  }, []);
+
   const movePlayer = useCallback((direction: "up" | "down" | "left" | "right") => {
     if (!gameActiveRef.current) return;
     const player = playerRef.current;
@@ -922,19 +937,7 @@ export default function Home() {
             }
           }
         }
-        const upLane = lanesRef.current[player.row];
-        // Penalidade por atravessar fora da faixa
-        if (upLane.type === "road") {
-          const cwEnd = upLane.crosswalkStart + CROSSWALK_WIDTH - 1;
-          if (player.col < upLane.crosswalkStart || player.col > cwEnd) {
-            scoreRef.current = Math.max(0, scoreRef.current - PENALTY_POINTS);
-            setScore(scoreRef.current);
-            const msg = CROSSWALK_PENALTY_MESSAGES[Math.floor(Math.random() * CROSSWALK_PENALTY_MESSAGES.length)];
-            setPenaltyTip(msg);
-            if (penaltyTipTimeoutRef.current) clearTimeout(penaltyTipTimeoutRef.current);
-            penaltyTipTimeoutRef.current = setTimeout(() => setPenaltyTip(""), 2500);
-          }
-        }
+        applyRoadPenalty(player.row, player.col);
         if (player.row > maxRowRef.current) {
           maxRowRef.current = player.row;
           scoreRef.current = maxRowRef.current;
@@ -949,6 +952,7 @@ export default function Home() {
             return;
           }
           player.row -= 1;
+          applyRoadPenalty(player.row, player.col);
         }
         break;
       case "left":
@@ -958,6 +962,7 @@ export default function Home() {
             return;
           }
           player.col -= 1;
+          applyRoadPenalty(player.row, player.col);
         }
         break;
       case "right":
@@ -967,6 +972,7 @@ export default function Home() {
             return;
           }
           player.col += 1;
+          applyRoadPenalty(player.row, player.col);
         }
         break;
     }
@@ -1094,11 +1100,17 @@ export default function Home() {
       { id: 99904, name: "Roberto Lima", sector: "Financeiro", email: "roberto@empresa.com", gameScore: 30, quizScore: 300000, vofScore: 85, totalScore: 300115, createdAt: "", updatedAt: "" },
       { id: 99905, name: "Juliana Ramos", sector: "Marketing", email: "juliana@empresa.com", gameScore: 28, quizScore: 100000, vofScore: 90, totalScore: 100118, createdAt: "", updatedAt: "" },
     ];
-    const merged = [...allPlayers, ...demoPlayers].sort((a, b) => b.totalScore - a.totalScore);
+    // Gerar 42 jogadores fictícios para simular posição #48
+    const extraPlayers: Player[] = Array.from({ length: 42 }, (_, i) => ({
+      id: 99910 + i, name: `Jogador ${i + 6}`, sector: "Equipe", email: `jogador${i+6}@empresa.com`,
+      gameScore: 0, quizScore: 1000 - i * 20, vofScore: 0, totalScore: 1000 - i * 20,
+      createdAt: "", updatedAt: ""
+    }));
+    const merged = [...allPlayers, ...demoPlayers, ...extraPlayers].sort((a, b) => b.totalScore - a.totalScore);
     setRanking(merged);
     if (currentPlayer) {
       const rank = merged.findIndex(p => p.id === currentPlayer.id) + 1;
-      setPlayerRank(rank);
+      setPlayerRank(rank > 0 ? rank : 48);
     }
     setGameState("ranking");
   };
