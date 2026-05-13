@@ -1093,18 +1093,18 @@ export default function Home() {
 
   const openRanking = async () => {
     const allPlayers = await getRanking();
-    // DEMO: dados de exemplo para visualização — remover antes do lançamento
+    // DEMO: dados fictícios para simulação do pódio — remover antes do lançamento
     const demoPlayers: Player[] = [
-      { id: 99901, name: "Ana Paula Silva", sector: "RH", email: "ana@empresa.com", gameScore: 980, quizScore: 1100, vofScore: 950, totalScore: 3030, createdAt: "", updatedAt: "" },
-      { id: 99902, name: "Carlos Mendonça", sector: "TI", email: "carlos@empresa.com", gameScore: 920, quizScore: 1000, vofScore: 880, totalScore: 2800, createdAt: "", updatedAt: "" },
-      { id: 99903, name: "Fernanda Costa", sector: "Comercial", email: "fernanda@empresa.com", gameScore: 870, quizScore: 900, vofScore: 820, totalScore: 2590, createdAt: "", updatedAt: "" },
-      { id: 99904, name: "Roberto Lima", sector: "Financeiro", email: "roberto@empresa.com", gameScore: 810, quizScore: 800, vofScore: 750, totalScore: 2360, createdAt: "", updatedAt: "" },
-      { id: 99905, name: "Juliana Ramos", sector: "Marketing", email: "juliana@empresa.com", gameScore: 760, quizScore: 700, vofScore: 680, totalScore: 2140, createdAt: "", updatedAt: "" },
+      { id: 99901, name: "Ana Paula Ferreira", sector: "RH", email: "ana@empresa.com", gameScore: 980, quizScore: 1100, vofScore: 980, totalScore: 3060, createdAt: "", updatedAt: "" },
+      { id: 99902, name: "Carlos Eduardo Lima", sector: "TI", email: "carlos@empresa.com", gameScore: 870, quizScore: 900, vofScore: 840, totalScore: 2610, createdAt: "", updatedAt: "" },
+      { id: 99903, name: "Fernanda Costa", sector: "Comercial", email: "fernanda@empresa.com", gameScore: 760, quizScore: 800, vofScore: 710, totalScore: 2270, createdAt: "", updatedAt: "" },
+      { id: 99904, name: "Roberto Nascimento", sector: "Financeiro", email: "roberto@empresa.com", gameScore: 640, quizScore: 700, vofScore: 590, totalScore: 1930, createdAt: "", updatedAt: "" },
+      { id: 99905, name: "Juliana Ramos", sector: "Marketing", email: "juliana@empresa.com", gameScore: 520, quizScore: 600, vofScore: 470, totalScore: 1590, createdAt: "", updatedAt: "" },
     ];
     // Gerar 42 jogadores fictícios para simular posição #48
     const extraPlayers: Player[] = Array.from({ length: 42 }, (_, i) => ({
       id: 99910 + i, name: `Jogador ${i + 6}`, sector: "Equipe", email: `jogador${i+6}@empresa.com`,
-      gameScore: 0, quizScore: 2100 - i * 45, vofScore: 0, totalScore: 2100 - i * 45,
+      gameScore: 0, quizScore: 1500 - i * 32, vofScore: 0, totalScore: 1500 - i * 32,
       createdAt: "", updatedAt: ""
     }));
     const merged = [...allPlayers, ...demoPlayers, ...extraPlayers].sort((a, b) => b.totalScore - a.totalScore);
