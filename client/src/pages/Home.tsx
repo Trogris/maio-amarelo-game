@@ -411,7 +411,8 @@ export default function Home() {
         crosswalkStart: 0,
       });
     }
-    const randCW = () => 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1));
+    // Faixa sempre em col 3 ou 4 para garantir que col 4 (posição inicial do jogador) esteja dentro
+    const randCW = () => 3 + Math.floor(Math.random() * 2);
     let consec = 0;
     let sectionCW = randCW();
     for (let i = 3; i < VISIBLE_ROWS + 20; i++) {
@@ -879,9 +880,8 @@ export default function Home() {
   const applyRoadPenalty = useCallback((row: number, col: number) => {
     const lane = lanesRef.current[row];
     if (lane?.type === "road" && lane.crosswalkStart >= 0) {
-      // margem de 1 coluna extra em cada lado para coincidir com o visual da faixa
-      const safeStart = Math.max(0, lane.crosswalkStart - 1);
-      const safeEnd = Math.min(COLS - 1, lane.crosswalkStart + CROSSWALK_WIDTH);
+      const safeStart = lane.crosswalkStart;
+      const safeEnd = lane.crosswalkStart + CROSSWALK_WIDTH - 1;
       if (col < safeStart || col > safeEnd) {
         scoreRef.current = Math.max(0, scoreRef.current - PENALTY_POINTS);
         setScore(scoreRef.current);
@@ -914,7 +914,7 @@ export default function Home() {
           for (let k = last.length - 1; k >= 0 && last[k].type === "road"; k--) consec++;
           const prevCW = last.length > 0 ? last[last.length - 1].crosswalkStart : 1;
           const sectionCW = consec === 0
-            ? 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1))
+            ? 3 + Math.floor(Math.random() * 2)
             : prevCW;
           if (consec === 0) {
             // Encontrar crosswalk da seção anterior para limpar corredor lateral
