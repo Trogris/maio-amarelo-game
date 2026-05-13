@@ -411,8 +411,7 @@ export default function Home() {
         crosswalkStart: 0,
       });
     }
-    // Faixa sempre em col 3 ou 4 para garantir que col 4 (posição inicial do jogador) esteja dentro
-    const randCW = () => 3 + Math.floor(Math.random() * 2);
+    const randCW = () => 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1));
     let consec = 0;
     let sectionCW = randCW();
     for (let i = 3; i < VISIBLE_ROWS + 20; i++) {
@@ -914,7 +913,7 @@ export default function Home() {
           for (let k = last.length - 1; k >= 0 && last[k].type === "road"; k--) consec++;
           const prevCW = last.length > 0 ? last[last.length - 1].crosswalkStart : 1;
           const sectionCW = consec === 0
-            ? 3 + Math.floor(Math.random() * 2)
+            ? 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1))
             : prevCW;
           if (consec === 0) {
             // Encontrar crosswalk da seção anterior para limpar corredor lateral
