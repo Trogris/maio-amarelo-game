@@ -878,13 +878,16 @@ export default function Home() {
 
   const applyRoadPenalty = useCallback((row: number, col: number) => {
     const lane = lanesRef.current[row];
-    if (lane?.type === "road") {
-      scoreRef.current = Math.max(0, scoreRef.current - PENALTY_POINTS);
-      setScore(scoreRef.current);
-      const msg = CROSSWALK_PENALTY_MESSAGES[Math.floor(Math.random() * CROSSWALK_PENALTY_MESSAGES.length)];
-      setPenaltyTip(msg);
-      if (penaltyTipTimeoutRef.current) clearTimeout(penaltyTipTimeoutRef.current);
-      penaltyTipTimeoutRef.current = setTimeout(() => setPenaltyTip(""), 2500);
+    if (lane?.type === "road" && lane.crosswalkStart >= 0) {
+      const cwEnd = lane.crosswalkStart + CROSSWALK_WIDTH - 1;
+      if (col < lane.crosswalkStart || col > cwEnd) {
+        scoreRef.current = Math.max(0, scoreRef.current - PENALTY_POINTS);
+        setScore(scoreRef.current);
+        const msg = CROSSWALK_PENALTY_MESSAGES[Math.floor(Math.random() * CROSSWALK_PENALTY_MESSAGES.length)];
+        setPenaltyTip(msg);
+        if (penaltyTipTimeoutRef.current) clearTimeout(penaltyTipTimeoutRef.current);
+        penaltyTipTimeoutRef.current = setTimeout(() => setPenaltyTip(""), 2500);
+      }
     }
   }, []);
 
