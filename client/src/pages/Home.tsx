@@ -1322,7 +1322,7 @@ export default function Home() {
               <div className="podium-item silver">
                 <div className="medal">🥈</div>
                 <div className="name">{ranking[1].name}</div>
-                <div className="score">{ranking[1].totalScore}</div>
+                <div className="score">{ranking[1].totalScore.toLocaleString('pt-BR')}</div>
               </div>
             )}
 
@@ -1330,7 +1330,7 @@ export default function Home() {
               <div className="podium-item gold">
                 <div className="medal">🥇</div>
                 <div className="name">{ranking[0].name}</div>
-                <div className="score">{ranking[0].totalScore}</div>
+                <div className="score">{ranking[0].totalScore.toLocaleString('pt-BR')}</div>
               </div>
             )}
 
@@ -1338,7 +1338,7 @@ export default function Home() {
               <div className="podium-item bronze">
                 <div className="medal">🥉</div>
                 <div className="name">{ranking[2].name}</div>
-                <div className="score">{ranking[2].totalScore}</div>
+                <div className="score">{ranking[2].totalScore.toLocaleString('pt-BR')}</div>
               </div>
             )}
           </div>
