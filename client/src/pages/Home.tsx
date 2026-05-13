@@ -417,9 +417,15 @@ export default function Home() {
     for (let i = 3; i < VISIBLE_ROWS + 20; i++) {
       if (consec === 0) {
         sectionCW = randCW();
-        // Limpar árvores nas colunas da faixa nas gramas anteriores (entrada)
+        // Encontrar crosswalk da seção anterior para limpar corredor lateral
+        let prevRoadCW = sectionCW;
+        for (let k = lanes.length - 1; k >= 0; k--) {
+          if (lanes[k].type === "road") { prevRoadCW = lanes[k].crosswalkStart; break; }
+        }
+        const corridorMin = Math.min(prevRoadCW, sectionCW);
+        const corridorMax = Math.max(prevRoadCW + CROSSWALK_WIDTH - 1, sectionCW + CROSSWALK_WIDTH - 1);
         for (let k = lanes.length - 1; k >= 0 && lanes[k].type === "grass"; k--) {
-          for (let c = Math.max(0, sectionCW - 1); c <= Math.min(COLS - 1, sectionCW + 2); c++) {
+          for (let c = Math.max(0, corridorMin - 1); c <= Math.min(COLS - 1, corridorMax + 1); c++) {
             lanes[k].hasTrees[c] = false;
           }
         }
@@ -894,8 +900,15 @@ export default function Home() {
             ? 1 + Math.floor(Math.random() * (COLS - CROSSWALK_WIDTH - 1))
             : prevCW;
           if (consec === 0) {
+            // Encontrar crosswalk da seção anterior para limpar corredor lateral
+            let prevRoadCW = sectionCW;
+            for (let k = last.length - 1; k >= 0; k--) {
+              if (last[k].type === "road") { prevRoadCW = last[k].crosswalkStart; break; }
+            }
+            const corridorMin = Math.min(prevRoadCW, sectionCW);
+            const corridorMax = Math.max(prevRoadCW + CROSSWALK_WIDTH - 1, sectionCW + CROSSWALK_WIDTH - 1);
             for (let k = last.length - 1; k >= 0 && last[k].type === "grass"; k--) {
-              for (let c = Math.max(0, sectionCW - 1); c <= Math.min(COLS - 1, sectionCW + 2); c++) {
+              for (let c = Math.max(0, corridorMin - 1); c <= Math.min(COLS - 1, corridorMax + 1); c++) {
                 last[k].hasTrees[c] = false;
               }
             }
