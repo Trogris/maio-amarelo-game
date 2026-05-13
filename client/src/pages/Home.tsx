@@ -879,8 +879,10 @@ export default function Home() {
   const applyRoadPenalty = useCallback((row: number, col: number) => {
     const lane = lanesRef.current[row];
     if (lane?.type === "road" && lane.crosswalkStart >= 0) {
-      const cwEnd = lane.crosswalkStart + CROSSWALK_WIDTH - 1;
-      if (col < lane.crosswalkStart || col > cwEnd) {
+      // margem de 1 coluna extra em cada lado para coincidir com o visual da faixa
+      const safeStart = Math.max(0, lane.crosswalkStart - 1);
+      const safeEnd = Math.min(COLS - 1, lane.crosswalkStart + CROSSWALK_WIDTH);
+      if (col < safeStart || col > safeEnd) {
         scoreRef.current = Math.max(0, scoreRef.current - PENALTY_POINTS);
         setScore(scoreRef.current);
         const msg = CROSSWALK_PENALTY_MESSAGES[Math.floor(Math.random() * CROSSWALK_PENALTY_MESSAGES.length)];
