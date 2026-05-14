@@ -304,7 +304,7 @@ export default function Home() {
           setLoginMode("email-only");
         }
       } else {
-        setLoginMode("first-access");
+        setLoginMode("email-only");
       }
     };
     initializeLogin();
@@ -355,7 +355,9 @@ export default function Home() {
         setCurrentPlayer(player);
         setGameState("menu");
       } else {
-        setLoginError("Email não encontrado. Faça o cadastro primeiro.");
+        // Email não cadastrado — abre formulário completo com email já preenchido
+        setLoginMode("first-access");
+        setLoginError("Email não encontrado. Complete o cadastro abaixo.");
       }
     } catch (error) {
       setLoginError("Erro ao conectar. Tente novamente.");
