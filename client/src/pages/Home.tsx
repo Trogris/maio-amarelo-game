@@ -1175,7 +1175,7 @@ export default function Home() {
     gameActiveRef.current = false;
     if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
     explosionRef.current = null;
-    const finalScore = scoreRef.current + collectedItemsRef.current * 25 + livesRef.current * 100;
+    const finalScore = scoreRef.current + collectedItemsRef.current * 25;
     if (currentPlayerRef.current) {
       updateGameScore(currentPlayerRef.current.id, finalScore).then(updated => { if (updated) setCurrentPlayer(updated); }).catch(console.error);
     }
