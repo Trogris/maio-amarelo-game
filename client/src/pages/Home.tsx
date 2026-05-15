@@ -40,6 +40,17 @@ const SAFETY_MESSAGES = [
 // ============================================================
 const CAMPAIGN_START = "2026-05-15"; // formato YYYY-MM-DD
 
+// ADMIN: emails com acesso irrestrito para testes
+const ADMIN_EMAILS = [
+  "charles.andrade@fiscaltech.com.br",
+  "cwa.andrade@fiscaltech.com.br",
+];
+
+function isAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.toLowerCase().trim());
+}
+
 function getTodayBrasilia(): string {
   return new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
 }
@@ -361,7 +372,8 @@ export default function Home() {
   }, [gameState]);
 
   const handleActivityClick = (activity: "jogo" | "quiz" | "vof") => {
-    if (wasPlayedToday(activity)) {
+    const admin = isAdmin(currentPlayer?.email);
+    if (!admin && wasPlayedToday(activity)) {
       const score = activity === "jogo"
         ? currentPlayer?.gameScore ?? 0
         : activity === "quiz"
@@ -1334,11 +1346,12 @@ export default function Home() {
   // ============================================================
   if (gameState === "menu") {
     const daysLeft = getDaysUntilCampaign();
+    const admin = isAdmin(currentPlayer?.email);
 
-    // Determina se cada botão de atividade está disponível hoje
-    const jogoAvailable  = campaignDay === 1;
-    const quizAvailable  = campaignDay === 2;
-    const vofAvailable   = campaignDay === 3;
+    // Admin tem acesso irrestrito; demais seguem o dia da campanha
+    const jogoAvailable  = admin || campaignDay === 1;
+    const quizAvailable  = admin || campaignDay === 2;
+    const vofAvailable   = admin || campaignDay === 3;
     const inCampaign     = campaignDay >= 1 && campaignDay <= 3;
 
     return (
