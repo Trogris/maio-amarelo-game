@@ -1380,7 +1380,7 @@ export default function Home() {
           )}
           {inCampaign && (
             <div className="campaign-banner campaign-active">
-              Dia {campaignDay} de 3 da campanha
+              {`Missão ${campaignDay} de 3 — ${campaignDay === 1 ? "Jogo" : campaignDay === 2 ? "Quiz" : "V ou F"}`}
             </div>
           )}
           {campaignDay === -1 && (
