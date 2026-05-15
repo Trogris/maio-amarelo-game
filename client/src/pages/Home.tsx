@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import TrueOrFalseGame from "./TrueOrFalseGame";
-import { getAllPlayers, getOrCreatePlayer, updateGameScore, updateQuizScore, getRanking, getPlayerRank, Player, getPlayerByEmail, createPlayer, isValidCorporateEmail } from "@/lib/database";
-import { getPlayerRank as getPlayerRankFunc } from "@/lib/database";
+import { updateGameScore, updateQuizScore, getRanking, Player, getPlayerByEmail, createPlayer, isValidCorporateEmail } from "@/lib/database";
 
 // ============================================================
 // DESIGN: "Urban Voxel Pop" - Maio Amarelo
@@ -34,6 +33,41 @@ const SAFETY_MESSAGES = [
   "Álcool e direção não combinam.",
   "Cada km/h acima do limite aumenta o risco de acidente. Respeite a sinalização.",
 ];
+
+// ============================================================
+// CAMPANHA 3 DIAS
+// ADMIN: altere CAMPAIGN_START para iniciar a campanha
+// ============================================================
+const CAMPAIGN_START = "2026-05-15"; // formato YYYY-MM-DD
+
+function getTodayBrasilia(): string {
+  return new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+}
+
+function getCampaignDay(): number {
+  const today = getTodayBrasilia();
+  const startMs = new Date(CAMPAIGN_START + "T12:00:00-03:00").getTime();
+  const todayMs = new Date(today + "T12:00:00-03:00").getTime();
+  const diff = Math.round((todayMs - startMs) / 86400000);
+  if (diff < 0) return 0;   // antes da campanha
+  if (diff > 2) return -1;  // campanha encerrada
+  return diff + 1;           // 1, 2 ou 3
+}
+
+function getDaysUntilCampaign(): number {
+  const today = getTodayBrasilia();
+  const startMs = new Date(CAMPAIGN_START + "T12:00:00-03:00").getTime();
+  const todayMs = new Date(today + "T12:00:00-03:00").getTime();
+  return Math.ceil((startMs - todayMs) / 86400000);
+}
+
+function wasPlayedToday(activity: "jogo" | "quiz" | "vof"): boolean {
+  return localStorage.getItem(`maio_${activity}_${getTodayBrasilia()}`) === "done";
+}
+
+function markPlayedToday(activity: "jogo" | "quiz" | "vof"): void {
+  localStorage.setItem(`maio_${activity}_${getTodayBrasilia()}`, "done");
+}
 
 // Quiz — 100 pts por acerto (11 perguntas, máx 1.100 pts)
 const QUIZ_QUESTIONS = [
@@ -232,7 +266,10 @@ function generateLane(row: number, difficulty: number, crosswalkStart: number = 
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [gameState, setGameState] = useState<"login" | "menu" | "playing" | "gameover" | "won" | "quiz" | "ranking" | "trueorfalse">("login");
+  const [gameState, setGameState] = useState<"login" | "menu" | "playing" | "gameover" | "won" | "quiz" | "ranking" | "trueorfalse" | "played-today">("login");
+  const [campaignDay, setCampaignDay] = useState(() => getCampaignDay());
+  const [playedToday, setPlayedToday] = useState({ jogo: false, quiz: false, vof: false });
+  const [playedTodayInfo, setPlayedTodayInfo] = useState<{ activity: string; score: number } | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [playerEmail, setPlayerEmail] = useState("");
   const [playerName, setPlayerName] = useState("");
@@ -309,6 +346,34 @@ export default function Home() {
     };
     initializeLogin();
   }, []);
+
+  // Atualizar estado da campanha ao entrar no menu
+  useEffect(() => {
+    if (gameState === "menu") {
+      setCampaignDay(getCampaignDay());
+      setPlayedToday({
+        jogo: wasPlayedToday("jogo"),
+        quiz: wasPlayedToday("quiz"),
+        vof: wasPlayedToday("vof"),
+      });
+    }
+  }, [gameState]);
+
+  const handleActivityClick = (activity: "jogo" | "quiz" | "vof") => {
+    if (wasPlayedToday(activity)) {
+      const score = activity === "jogo"
+        ? currentPlayer?.gameScore ?? 0
+        : activity === "quiz"
+        ? currentPlayer?.quizScore ?? 0
+        : currentPlayer?.vofScore ?? 0;
+      setPlayedTodayInfo({ activity, score });
+      setGameState("played-today");
+    } else {
+      if (activity === "jogo") initGame();
+      else if (activity === "quiz") startQuiz();
+      else setGameState("trueorfalse");
+    }
+  };
 
   const handleFirstAccessLogin = async () => {
     setLoginError("");
@@ -519,6 +584,7 @@ export default function Home() {
               setScore(finalScore);
               const p = currentPlayerRef.current;
               if (p) updateGameScore(p.id, finalScore).then(updated => { if (updated) setCurrentPlayer(updated); }).catch(console.error);
+              markPlayedToday("jogo");
               // iniciar animação de explosão
               const pyScreen = canvas.height - (PLAYER_Y_OFFSET + 1) * TILE_SIZE + TILE_SIZE / 2;
               explosionRef.current = { frame: 0, x: player.x, y: pyScreen };
@@ -572,6 +638,7 @@ export default function Home() {
       setScore(finalScore);
       const p = currentPlayerRef.current;
       if (p) updateGameScore(p.id, finalScore).then(updated => { if (updated) setCurrentPlayer(updated); }).catch(console.error);
+      markPlayedToday("jogo");
       setTimeout(() => setGameState("won"), 500);
       return;
     }
@@ -1126,17 +1193,16 @@ export default function Home() {
     if (currentPlayerRef.current) {
       updateGameScore(currentPlayerRef.current.id, finalScore).then(updated => { if (updated) setCurrentPlayer(updated); }).catch(console.error);
     }
+    markPlayedToday("jogo");
     setGameState("menu");
   }, []);
 
   const finishQuiz = async () => {
     if (currentPlayer) {
-      await updateQuizScore(currentPlayer.id, quizScore);
-      const updated = await getOrCreatePlayer(currentPlayer.name, currentPlayer.sector);
-      if (updated) {
-        setCurrentPlayer(updated);
-      }
+      const updated = await updateQuizScore(currentPlayer.id, quizScore);
+      if (updated) setCurrentPlayer(updated);
     }
+    markPlayedToday("quiz");
     setGameState("menu");
   };
 
@@ -1243,9 +1309,52 @@ export default function Home() {
   }
 
   // ============================================================
+  // TELA "JÁ JOGOU HOJE"
+  // ============================================================
+  if (gameState === "played-today") {
+    const actLabel =
+      playedTodayInfo?.activity === "jogo" ? "Jogo" :
+      playedTodayInfo?.activity === "quiz" ? "Quiz" : "Verdadeiro ou Falso";
+    return (
+      <div className="game-container menu-screen">
+        <div className="menu-content">
+          <div className="played-today-card">
+            <div className="played-today-icon">🏆</div>
+            <h2 className="played-today-title">Você já jogou hoje!</h2>
+            <p className="played-today-activity">{actLabel}</p>
+            <div className="played-today-score">
+              <span className="played-today-label">Sua melhor pontuação</span>
+              <strong className="played-today-pts">
+                {(playedTodayInfo?.score || 0).toLocaleString('pt-BR')} pts
+              </strong>
+            </div>
+            <p className="played-today-message">Volte amanhã para o próximo desafio! 💪</p>
+            <button className="btn-ranking" onClick={openRanking}>VER RANKING</button>
+            <button className="btn-back" onClick={() => setGameState("menu")} style={{ marginTop: "0.5rem" }}>VOLTAR</button>
+          </div>
+        </div>
+        <div className="menu-bg-overlay" />
+        <img
+          src="https://d2xsxph8kpxj0f.cloudfront.net/310419663031119109/YnbKJJLfGRS8NCpXrb5yB2/hero-banner-hskNyNjFFvT94kqkpvuQKb.webp"
+          alt=""
+          className="menu-bg-image"
+        />
+      </div>
+    );
+  }
+
+  // ============================================================
   // TELA INICIAL
   // ============================================================
   if (gameState === "menu") {
+    const daysLeft = getDaysUntilCampaign();
+
+    // Determina se cada botão de atividade está disponível hoje
+    const jogoAvailable  = campaignDay === 1;
+    const quizAvailable  = campaignDay === 2;
+    const vofAvailable   = campaignDay === 3;
+    const inCampaign     = campaignDay >= 1 && campaignDay <= 3;
+
     return (
       <div className="game-container menu-screen">
         <div className="menu-content">
@@ -1277,16 +1386,66 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Banner da campanha */}
+          {campaignDay === 0 && (
+            <div className="campaign-banner campaign-upcoming">
+              ⏳ A campanha começa em {daysLeft === 1 ? "1 dia" : `${daysLeft} dias`}!
+            </div>
+          )}
+          {inCampaign && (
+            <div className="campaign-banner campaign-active">
+              📅 Dia {campaignDay} de 3 da campanha
+            </div>
+          )}
+          {campaignDay === -1 && (
+            <div className="campaign-banner campaign-ended">
+              🏁 Campanha encerrada. Obrigado por participar!
+            </div>
+          )}
+
           <div className="menu-buttons">
-            <button className="btn-play" onClick={initGame}>
-              JOGAR
-            </button>
-            <button className="btn-quiz" onClick={startQuiz}>
-              QUIZ
-            </button>
-            <button className="btn-quiz btn-tf" onClick={() => setGameState("trueorfalse")}>
-              V ou F
-            </button>
+            {/* JOGAR */}
+            {jogoAvailable ? (
+              <button
+                className={`btn-play ${playedToday.jogo ? "btn-played" : ""}`}
+                onClick={() => handleActivityClick("jogo")}
+              >
+                {playedToday.jogo ? "✓ JOGAR" : "JOGAR"}
+              </button>
+            ) : (
+              <button className="btn-play btn-locked" disabled>
+                🔒 JOGAR
+              </button>
+            )}
+
+            {/* QUIZ */}
+            {quizAvailable ? (
+              <button
+                className={`btn-quiz ${playedToday.quiz ? "btn-played" : ""}`}
+                onClick={() => handleActivityClick("quiz")}
+              >
+                {playedToday.quiz ? "✓ QUIZ" : "QUIZ"}
+              </button>
+            ) : (
+              <button className="btn-quiz btn-locked" disabled>
+                🔒 QUIZ
+              </button>
+            )}
+
+            {/* V OU F */}
+            {vofAvailable ? (
+              <button
+                className={`btn-quiz btn-tf ${playedToday.vof ? "btn-played" : ""}`}
+                onClick={() => handleActivityClick("vof")}
+              >
+                {playedToday.vof ? "✓ V ou F" : "V ou F"}
+              </button>
+            ) : (
+              <button className="btn-quiz btn-tf btn-locked" disabled>
+                🔒 V ou F
+              </button>
+            )}
+
             <button className="btn-ranking" onClick={openRanking}>
               RANKING
             </button>
@@ -1314,6 +1473,7 @@ export default function Home() {
   // ============================================================
   if (gameState === "trueorfalse") {
     return <TrueOrFalseGame player={currentPlayer} onExit={async () => {
+      markPlayedToday("vof");
       const email = localStorage.getItem("maio_amarelo_email");
       if (email) {
         const updated = await getPlayerByEmail(email);
@@ -1499,7 +1659,7 @@ export default function Home() {
             <p>Você atravessou com segurança todas as {MAX_ROWS} ruas!</p>
           </div>
           <div className="gameover-buttons">
-            <button className="btn-play" onClick={initGame}>
+            <button className="btn-play" onClick={() => handleActivityClick("jogo")}>
               JOGAR NOVAMENTE
             </button>
             <button className="btn-quiz" onClick={() => setGameState("menu")}>
@@ -1527,7 +1687,7 @@ export default function Home() {
             <p>{safetyMessage}</p>
           </div>
           <div className="gameover-buttons">
-            <button className="btn-play" onClick={initGame}>
+            <button className="btn-play" onClick={() => handleActivityClick("jogo")}>
               JOGAR NOVAMENTE
             </button>
             <button className="btn-quiz" onClick={() => setGameState("menu")}>

@@ -656,6 +656,110 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
+/* ── BOTÕES LOCKED / PLAYED ── */
+.btn-locked {
+  opacity: 0.38 !important;
+  cursor: not-allowed !important;
+  filter: grayscale(0.6);
+}
+
+.btn-played {
+  opacity: 0.75;
+}
+
+/* ── BANNER DE CAMPANHA ── */
+.campaign-banner {
+  width: 100%;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+}
+
+.campaign-upcoming {
+  background: rgba(253, 216, 53, 0.15);
+  border: 1px solid rgba(253, 216, 53, 0.4);
+  color: #FDD835;
+}
+
+.campaign-active {
+  background: rgba(102, 187, 106, 0.15);
+  border: 1px solid rgba(102, 187, 106, 0.4);
+  color: #66BB6A;
+}
+
+.campaign-ended {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ── TELA "JÁ JOGOU HOJE" ── */
+.played-today-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  max-width: 340px;
+  width: 100%;
+}
+
+.played-today-icon {
+  font-size: 2.8rem;
+  line-height: 1;
+}
+
+.played-today-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #FDD835;
+  margin: 0;
+}
+
+.played-today-activity {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+}
+
+.played-today-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  background: rgba(253, 216, 53, 0.12);
+  border-radius: 10px;
+  padding: 0.7rem 1.5rem;
+  width: 100%;
+}
+
+.played-today-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.played-today-pts {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #FDD835;
+}
+
+.played-today-message {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0.2rem 0;
+}
+
 /* RANKING SCREEN */
 .ranking-screen {
   background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 100%);
