@@ -69,72 +69,6 @@ function markPlayedToday(activity: "jogo" | "quiz" | "vof"): void {
   localStorage.setItem(`maio26_${activity}_${getTodayBrasilia()}`, "done");
 }
 
-// ── Ícones SVG ─────────────────────────────────────────────
-const IcoLock = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ display: "inline", verticalAlign: "middle", marginRight: 5 }}>
-    <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="2.2"/>
-    <path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-  </svg>
-);
-const IcoCheck = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ display: "inline", verticalAlign: "middle", marginRight: 5 }}>
-    <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-const IcoClock = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }}>
-    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
-    <path d="M12 7v5l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
-const IcoCalendar = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }}>
-    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
-    <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
-const IcoFlag = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }}>
-    <path d="M4 21V4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M4 4l14 4.5L4 13" fill="currentColor" fillOpacity="0.25" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
-  </svg>
-);
-const IcoTrophy = () => (
-  <svg width="52" height="52" viewBox="0 0 24 24" fill="none">
-    <path d="M8 21h8M12 17v4" stroke="#FDD835" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M7 4h10l-1 9a4 4 0 01-8 0L7 4z" stroke="#FDD835" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M17 4h2a2 2 0 012 2v1a2 2 0 01-2 2h-1M7 4H5a2 2 0 00-2 2v1a2 2 0 002 2h1" stroke="#FDD835" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
-const IcoStar = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ display: "inline", verticalAlign: "middle", marginRight: 5 }}>
-    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-const MedalGold = () => (
-  <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
-    <path d="M11 13L7 3h24l-4 10" fill="#FFD700" stroke="#D4A000" strokeWidth="1.5" strokeLinejoin="round"/>
-    <circle cx="19" cy="25" r="12" fill="#FFD700" stroke="#D4A000" strokeWidth="2"/>
-    <circle cx="19" cy="25" r="9" fill="#FFC000" fillOpacity="0.4"/>
-    <text x="19" y="30" textAnchor="middle" fill="#5D3A00" fontSize="12" fontWeight="900" fontFamily="Arial,sans-serif">1</text>
-  </svg>
-);
-const MedalSilver = () => (
-  <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
-    <path d="M11 13L7 3h24l-4 10" fill="#C0C0C0" stroke="#909090" strokeWidth="1.5" strokeLinejoin="round"/>
-    <circle cx="19" cy="25" r="12" fill="#C0C0C0" stroke="#909090" strokeWidth="2"/>
-    <circle cx="19" cy="25" r="9" fill="#A8A8A8" fillOpacity="0.4"/>
-    <text x="19" y="30" textAnchor="middle" fill="#3A3A3A" fontSize="12" fontWeight="900" fontFamily="Arial,sans-serif">2</text>
-  </svg>
-);
-const MedalBronze = () => (
-  <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
-    <path d="M11 13L7 3h24l-4 10" fill="#CD7F32" stroke="#A05A10" strokeWidth="1.5" strokeLinejoin="round"/>
-    <circle cx="19" cy="25" r="12" fill="#CD7F32" stroke="#A05A10" strokeWidth="2"/>
-    <circle cx="19" cy="25" r="9" fill="#A0600A" fillOpacity="0.4"/>
-    <text x="19" y="30" textAnchor="middle" fill="#3D1A00" fontSize="12" fontWeight="900" fontFamily="Arial,sans-serif">3</text>
-  </svg>
-);
 
 // Quiz — 100 pts por acerto (11 perguntas, máx 1.100 pts)
 const QUIZ_QUESTIONS = [
@@ -1371,7 +1305,7 @@ export default function Home() {
       <div className="game-container menu-screen">
         <div className="menu-content">
           <div className="played-today-card">
-            <div className="played-today-icon"><IcoTrophy /></div>
+            <div className="played-today-icon">🏆</div>
             <h2 className="played-today-title">Você já jogou hoje!</h2>
             <p className="played-today-activity">{actLabel}</p>
             <div className="played-today-score">
@@ -1380,7 +1314,7 @@ export default function Home() {
                 {(playedTodayInfo?.score || 0).toLocaleString('pt-BR')} pts
               </strong>
             </div>
-            <p className="played-today-message"><IcoStar />Volte amanhã para o próximo desafio!</p>
+            <p className="played-today-message">Volte amanhã para o próximo desafio! 💪</p>
             <button className="btn-ranking" onClick={openRanking}>VER RANKING</button>
             <button className="btn-back" onClick={() => setGameState("menu")} style={{ marginTop: "0.5rem" }}>VOLTAR</button>
           </div>
@@ -1441,17 +1375,17 @@ export default function Home() {
           {/* Banner da campanha */}
           {campaignDay === 0 && (
             <div className="campaign-banner campaign-upcoming">
-              <IcoClock /> A campanha começa em {daysLeft === 1 ? "1 dia" : `${daysLeft} dias`}!
+              A campanha começa em {daysLeft === 1 ? "1 dia" : `${daysLeft} dias`}!
             </div>
           )}
           {inCampaign && (
             <div className="campaign-banner campaign-active">
-              <IcoCalendar /> Dia {campaignDay} de 3 da campanha
+              Dia {campaignDay} de 3 da campanha
             </div>
           )}
           {campaignDay === -1 && (
             <div className="campaign-banner campaign-ended">
-              <IcoFlag /> Campanha encerrada. Obrigado por participar!
+              Campanha encerrada. Obrigado por participar!
             </div>
           )}
 
@@ -1462,11 +1396,11 @@ export default function Home() {
                 className={`btn-play ${playedToday.jogo ? "btn-played" : ""}`}
                 onClick={() => handleActivityClick("jogo")}
               >
-                {playedToday.jogo ? <><IcoCheck />JOGAR</> : "JOGAR"}
+                JOGAR
               </button>
             ) : (
               <button className="btn-play btn-locked" disabled>
-                <IcoLock />JOGAR
+                JOGAR
               </button>
             )}
 
@@ -1476,11 +1410,11 @@ export default function Home() {
                 className={`btn-quiz ${playedToday.quiz ? "btn-played" : ""}`}
                 onClick={() => handleActivityClick("quiz")}
               >
-                {playedToday.quiz ? <><IcoCheck />QUIZ</> : "QUIZ"}
+                QUIZ
               </button>
             ) : (
               <button className="btn-quiz btn-locked" disabled>
-                <IcoLock />QUIZ
+                QUIZ
               </button>
             )}
 
@@ -1490,11 +1424,11 @@ export default function Home() {
                 className={`btn-quiz btn-tf ${playedToday.vof ? "btn-played" : ""}`}
                 onClick={() => handleActivityClick("vof")}
               >
-                {playedToday.vof ? <><IcoCheck />V ou F</> : "V ou F"}
+                V ou F
               </button>
             ) : (
               <button className="btn-quiz btn-tf btn-locked" disabled>
-                <IcoLock />V ou F
+                V ou F
               </button>
             )}
 
@@ -1545,7 +1479,7 @@ export default function Home() {
           <div className="podium">
             {ranking.length > 1 && (
               <div className="podium-item silver">
-                <div className="medal"><MedalSilver /></div>
+                <div className="medal">🥈</div>
                 <div className="name">{ranking[1].name}</div>
                 <div className="score">{ranking[1].totalScore.toLocaleString('pt-BR')}</div>
               </div>
@@ -1553,7 +1487,7 @@ export default function Home() {
 
             {ranking.length > 0 && (
               <div className="podium-item gold">
-                <div className="medal"><MedalGold /></div>
+                <div className="medal">🥇</div>
                 <div className="name">{ranking[0].name}</div>
                 <div className="score">{ranking[0].totalScore.toLocaleString('pt-BR')}</div>
               </div>
@@ -1561,7 +1495,7 @@ export default function Home() {
 
             {ranking.length > 2 && (
               <div className="podium-item bronze">
-                <div className="medal"><MedalBronze /></div>
+                <div className="medal">🥉</div>
                 <div className="name">{ranking[2].name}</div>
                 <div className="score">{ranking[2].totalScore.toLocaleString('pt-BR')}</div>
               </div>
@@ -1677,19 +1611,12 @@ export default function Home() {
           {quizAnswered && (
             <div className={`quiz-feedback ${quizCorrect ? "correct" : "wrong"}`}>
               <div className="quiz-feedback-top">
-                {quizCorrect ? (
-                  <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{display:"inline",verticalAlign:"middle",marginRight:5}}><path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>CORRETO!</>
-                ) : (
-                  <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{display:"inline",verticalAlign:"middle",marginRight:5}}><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/></svg>INCORRETO!</>
-                )}
+                {quizCorrect ? "✓ CORRETO!" : "✗ INCORRETO!"}
                 {quizCorrect && <span className="prize-gained">+{currentQ.prize.toLocaleString('pt-BR')}</span>}
               </div>
               <p className="quiz-explanation">{currentQ.explanation}</p>
               <button className="btn-next" onClick={nextQuestion}>
-                PRÓXIMA
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{display:"inline",verticalAlign:"middle",marginLeft:6}}>
-                  <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                PRÓXIMA →
               </button>
             </div>
           )}
@@ -1782,9 +1709,7 @@ export default function Home() {
         <div className="hud-lives">
           {Array.from({ length: MAX_LIVES }).map((_, i) => (
             <div key={i} className={`heart ${i < lives ? "full" : "empty"}`}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 21C12 21 3 14.5 3 8.5a5 5 0 019-3 5 5 0 019 3c0 6-9 12.5-9 12.5z"/>
-              </svg>
+              ♥
             </div>
           ))}
         </div>
@@ -1792,20 +1717,11 @@ export default function Home() {
           <div className="hud-label">RUAS</div>
           <div className="hud-value">{Math.min(playerRef.current.row, MAX_ROWS)}/{MAX_ROWS}</div>
         </div>
-        <button className="btn-quit-game" onClick={quitGame}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style={{display:"inline",verticalAlign:"middle",marginRight:4}}>
-            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-          </svg>
-          <span className="quit-label">Sair</span>
-        </button>
+        <button className="btn-quit-game" onClick={quitGame}>✕ <span className="quit-label">Sair</span></button>
       </div>
       {penaltyTip && (
         <div className="penalty-banner">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{display:"inline",verticalAlign:"middle",marginRight:5}}>
-            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
-            <path d="M12 9v4M12 17h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          {penaltyTip} <span className="penalty-pts">-{PENALTY_POINTS} pts</span>
+          ⚠ {penaltyTip} <span className="penalty-pts">-{PENALTY_POINTS} pts</span>
         </div>
       )}
       <div className="canvas-wrapper">
