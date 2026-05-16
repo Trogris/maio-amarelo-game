@@ -1502,6 +1502,19 @@ export default function Home() {
           <button className="btn-logout" onClick={handleSwitchUser}>
             Trocar usuário
           </button>
+
+          {TEST_MODE && (
+            <button className="btn-reset-test" onClick={() => {
+              localStorage.removeItem("maio26_jogo_test");
+              localStorage.removeItem("maio26_quiz_test");
+              localStorage.removeItem("maio26_vof_test");
+              setCampaignDay(getCampaignDay());
+              setPlayedToday({ jogo: false, quiz: false, vof: false });
+              setGameState("menu");
+            }}>
+              🔄 Reiniciar Campanha (teste)
+            </button>
+          )}
         </div>
 
         <div className="menu-bg-overlay" />

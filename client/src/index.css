@@ -644,6 +644,23 @@
   transform: translateY(-2px);
 }
 
+.btn-reset-test {
+  background: rgba(255, 152, 0, 0.15);
+  color: #FFA726;
+  border: 1px dashed rgba(255, 152, 0, 0.5);
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-radius: 8px;
+  font-family: 'Arial', sans-serif;
+  transition: background 0.2s;
+  margin-top: 0.25rem;
+}
+
+.btn-reset-test:hover {
+  background: rgba(255, 152, 0, 0.28);
+}
+
 .btn-logout {
   background: transparent;
   color: rgba(255, 255, 255, 0.6);
@@ -942,33 +959,33 @@
   flex-direction: column;
   align-items: center;
   gap: 0.4rem;
-  padding: clamp(0.5rem, 2vw, 1rem);
+  padding: clamp(0.5rem, 2vw, 0.85rem);
   border-radius: 8px;
   text-align: center;
   flex: 1;
   min-width: 0;
-  justify-content: flex-end;
-  overflow: hidden;
+  justify-content: flex-start; /* medalha sempre no topo do item */
 }
 
+/* Padding inferior cria o degrau: gold mais alto, bronze mais baixo */
 .podium-item.gold {
   background: rgba(255, 215, 0, 0.15);
   border: 2px solid #FFD700;
-  height: clamp(200px, 32vw, 240px);
+  padding-bottom: clamp(60px, 10vw, 80px);
   order: 2;
 }
 
 .podium-item.silver {
   background: rgba(192, 192, 192, 0.15);
   border: 2px solid #C0C0C0;
-  height: clamp(155px, 25vw, 190px);
+  padding-bottom: clamp(30px, 5vw, 45px);
   order: 1;
 }
 
 .podium-item.bronze {
   background: rgba(205, 127, 50, 0.15);
   border: 2px solid #CD7F32;
-  height: clamp(118px, 19vw, 148px);
+  padding-bottom: clamp(8px, 1.5vw, 12px);
   order: 3;
 }
 
