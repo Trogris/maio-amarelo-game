@@ -74,7 +74,8 @@ function getDayKey(): string {
 function getCampaignDay(): number {
   if (TEST_MODE) {
     const elapsed = Math.floor(Date.now() / TEST_WINDOW_MS) - TEST_CYCLE_OFFSET;
-    return (elapsed % 3) + 1; // sempre começa em 1 ao carregar a página
+    if (elapsed >= 3) return -1; // campanha encerrada após o Dia 3
+    return elapsed + 1; // 1 → 2 → 3
   }
   const today = getTodayBrasilia();
   const startMs = new Date(CAMPAIGN_START + "T12:00:00-03:00").getTime();
