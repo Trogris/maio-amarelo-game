@@ -356,7 +356,7 @@ export default function Home() {
     initializeLogin();
   }, []);
 
-  // Atualizar estado da campanha ao entrar no menu
+  // Atualizar estado da campanha e pontuação ao entrar no menu
   useEffect(() => {
     if (gameState === "menu") {
       setCampaignDay(getCampaignDay());
@@ -365,6 +365,13 @@ export default function Home() {
         quiz: wasPlayedToday("quiz"),
         vof: wasPlayedToday("vof"),
       });
+      // Sempre busca pontuação atualizada do Supabase ao abrir o menu
+      const email = localStorage.getItem("maio_amarelo_email");
+      if (email) {
+        getPlayerByEmail(email).then(updated => {
+          if (updated) setCurrentPlayer(updated);
+        }).catch(console.error);
+      }
     }
   }, [gameState]);
 
