@@ -190,13 +190,13 @@ export default function TrueOrFalseGame({ player, onExit }: Props) {
           </div>
 
           {pct === 100 && (
-            <p className="tf-message perfect">Perfeito! Você é um especialista em segurança!</p>
+            <p className="tf-message perfect">Parabéns! Você é um especialista em segurança no trânsito!</p>
           )}
           {pct >= 70 && pct < 100 && (
-            <p className="tf-message good">Muito bem! Continue praticando para a pontuação máxima.</p>
+            <p className="tf-message good">Muito bem! Você está no caminho certo para o trânsito seguro!</p>
           )}
           {pct < 70 && (
-            <p className="tf-message improve">Que tal revisar as regras de segurança no trânsito?</p>
+            <p className="tf-message improve">Não desanime! Cada aprendizado conta para um trânsito mais seguro.</p>
           )}
 
           <div className="tf-buttons">
@@ -224,7 +224,10 @@ export default function TrueOrFalseGame({ player, onExit }: Props) {
             </svg>
             {score.toLocaleString('pt-BR')} pts
           </div>
-          <button className="btn-quit-quiz" onClick={onExit}>Sair</button>
+          <button className="btn-quit-quiz" onClick={() => {
+            if (player && score > 0) updateVofScore(player.id, score).catch(console.error);
+            onExit();
+          }}>Sair</button>
         </div>
 
         {/* Barra de progresso das perguntas */}

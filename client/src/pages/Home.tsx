@@ -1310,7 +1310,8 @@ export default function Home() {
                     </div>
                     <div className="form-group">
                       <label htmlFor="name">Nome e Sobrenome</label>
-                      <input id="name" type="text" placeholder="Digite seu nome completo"
+                      <input id="name" type="text" placeholder="Ex: João Silva"
+                        maxLength={50}
                         value={playerName} onChange={(e) => setPlayerName(e.target.value)}
                         onKeyPress={(e) => e.key === "Enter" && handleFirstAccessLogin()} disabled={isLoggingIn} />
                     </div>
@@ -1666,13 +1667,13 @@ export default function Home() {
                 Você acumulou: <strong>{quizScore.toLocaleString('pt-BR')}</strong> pontos
               </p>
               {quizScore >= 1100 && (
-                <p className="quiz-perfect">Perfeito! Você acertou tudo!</p>
+                <p className="quiz-perfect">Parabéns! Você acertou tudo! Conhecimento total em segurança!</p>
               )}
               {quizScore >= 700 && quizScore < 1100 && (
-                <p className="quiz-good">Excelente desempenho! Muito conhecimento!</p>
+                <p className="quiz-good">Muito bem! Você tem ótimo conhecimento sobre o trânsito!</p>
               )}
               {quizScore < 700 && (
-                <p className="quiz-improve">Que tal estudar mais sobre segurança no trânsito?</p>
+                <p className="quiz-improve">Não desanime! Cada aprendizado conta para um trânsito mais seguro.</p>
               )}
             </div>
             <div className="quiz-buttons">
@@ -1764,6 +1765,11 @@ export default function Home() {
           <div className="safety-message">
             <p>Você atravessou com segurança todas as {MAX_ROWS} ruas!</p>
           </div>
+          <p className="game-result-msg" style={{ color: "#66BB6A" }}>
+            {score >= 2000
+              ? "Incrível! Pontuação máxima! Você é um mestre do trânsito seguro!"
+              : "Excelente! Missão completa com chave de ouro!"}
+          </p>
           <div className="gameover-buttons">
             <button className="btn-play" onClick={() => handleActivityClick("jogo")}>
               JOGAR NOVAMENTE
@@ -1792,6 +1798,13 @@ export default function Home() {
           <div className="safety-message">
             <p>{safetyMessage}</p>
           </div>
+          <p className="game-result-msg">
+            {score >= 700
+              ? "Parabéns! Você teve um ótimo desempenho no trânsito!"
+              : score >= 200
+              ? "Boa tentativa! Continue praticando para melhorar seu resultado."
+              : "Não desanime! Cada aprendizado conta para um trânsito mais seguro."}
+          </p>
           <div className="gameover-buttons">
             <button className="btn-play" onClick={() => handleActivityClick("jogo")}>
               JOGAR NOVAMENTE
