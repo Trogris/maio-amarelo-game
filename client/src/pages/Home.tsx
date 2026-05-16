@@ -41,10 +41,7 @@ const SAFETY_MESSAGES = [
 const CAMPAIGN_START = "2026-05-15"; // formato YYYY-MM-DD
 
 // ADMIN: emails com acesso irrestrito para testes
-const ADMIN_EMAILS = [
-  "charles.andrade@fiscaltech.com.br",
-  "cwa.andrade@fiscaltech.com.br",
-];
+const ADMIN_EMAILS: string[] = [];
 
 function isAdmin(email: string | null | undefined): boolean {
   if (!email) return false;
