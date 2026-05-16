@@ -40,6 +40,11 @@ const SAFETY_MESSAGES = [
 // ============================================================
 const CAMPAIGN_START = "2026-05-15"; // formato YYYY-MM-DD
 
+// ⚠️ MODO DE TESTE: muda o dia da campanha a cada 5 minutos
+// Defina como false antes de ir para produção
+const TEST_MODE = true;
+const TEST_WINDOW_MS = 5 * 60 * 1000; // 5 minutos
+
 // ADMIN: emails com acesso irrestrito para testes (sem restrição de dia ou "já jogou hoje")
 // Para adicionar um administrador: coloque o email corporativo em letras minúsculas
 const ADMIN_EMAILS: string[] = [
@@ -55,14 +60,26 @@ function getTodayBrasilia(): string {
   return new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
 }
 
+// Retorna uma chave de "dia" — real ou virtual (modo teste)
+function getDayKey(): string {
+  if (TEST_MODE) {
+    return `test_${Math.floor(Date.now() / TEST_WINDOW_MS)}`;
+  }
+  return getTodayBrasilia();
+}
+
 function getCampaignDay(): number {
+  if (TEST_MODE) {
+    const window = Math.floor(Date.now() / TEST_WINDOW_MS);
+    return (window % 3) + 1; // cicla 1 → 2 → 3 → 1 → ...
+  }
   const today = getTodayBrasilia();
   const startMs = new Date(CAMPAIGN_START + "T12:00:00-03:00").getTime();
   const todayMs = new Date(today + "T12:00:00-03:00").getTime();
   const diff = Math.round((todayMs - startMs) / 86400000);
-  if (diff < 0) return 0;   // antes da campanha
-  if (diff > 2) return -1;  // campanha encerrada
-  return diff + 1;           // 1, 2 ou 3
+  if (diff < 0) return 0;
+  if (diff > 2) return -1;
+  return diff + 1;
 }
 
 function getDaysUntilCampaign(): number {
@@ -73,11 +90,11 @@ function getDaysUntilCampaign(): number {
 }
 
 function wasPlayedToday(activity: "jogo" | "quiz" | "vof"): boolean {
-  return localStorage.getItem(`maio26_${activity}_${getTodayBrasilia()}`) === "done";
+  return localStorage.getItem(`maio26_${activity}_${getDayKey()}`) === "done";
 }
 
 function markPlayedToday(activity: "jogo" | "quiz" | "vof"): void {
-  localStorage.setItem(`maio26_${activity}_${getTodayBrasilia()}`, "done");
+  localStorage.setItem(`maio26_${activity}_${getDayKey()}`, "done");
 }
 
 
@@ -289,6 +306,7 @@ export default function Home() {
   const [loginMode, setLoginMode] = useState<"first-access" | "email-only" | "auto-login">("first-access");
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [testCountdown, setTestCountdown] = useState(0); // segundos até próxima troca (TEST_MODE)
 
   // Game state
   const [lives, setLives] = useState(MAX_LIVES);
@@ -357,6 +375,25 @@ export default function Home() {
       }
     };
     initializeLogin();
+  }, []);
+
+  // TEST_MODE: ticker a cada segundo — atualiza dia e contador regressivo
+  useEffect(() => {
+    if (!TEST_MODE) return;
+    const tick = () => {
+      const msElapsed = Date.now() % TEST_WINDOW_MS;
+      const remaining = Math.ceil((TEST_WINDOW_MS - msElapsed) / 1000);
+      setTestCountdown(remaining);
+      setCampaignDay(getCampaignDay());
+      setPlayedToday({
+        jogo: wasPlayedToday("jogo"),
+        quiz: wasPlayedToday("quiz"),
+        vof: wasPlayedToday("vof"),
+      });
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // Atualizar estado da campanha e pontuação ao entrar no menu
@@ -1422,6 +1459,9 @@ export default function Home() {
           {inCampaign && (
             <div className="campaign-banner campaign-active">
               {`Missão ${campaignDay} de 3 — ${campaignDay === 1 ? "Jogo" : campaignDay === 2 ? "Quiz" : "V ou F"}`}
+              {TEST_MODE && (
+                <span className="test-countdown"> · próxima em {Math.floor(testCountdown / 60)}:{String(testCountdown % 60).padStart(2, "0")}</span>
+              )}
             </div>
           )}
           {campaignDay === -1 && (
