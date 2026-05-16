@@ -40,12 +40,9 @@ const SAFETY_MESSAGES = [
 // ============================================================
 const CAMPAIGN_START = "2026-05-15"; // formato YYYY-MM-DD
 
-// ⚠️ MODO DE TESTE: muda o dia da campanha a cada 5 minutos
+// ⚠️ MODO DE TESTE: dia avança automaticamente ao concluir cada atividade
 // Defina como false antes de ir para produção
 const TEST_MODE = true;
-const TEST_WINDOW_MS = 5 * 60 * 1000; // 5 minutos
-// Offset calculado no carregamento da página → garante que agora = Dia 1
-const TEST_CYCLE_OFFSET = Math.floor(Date.now() / TEST_WINDOW_MS);
 
 // ADMIN: emails com acesso irrestrito para testes (sem restrição de dia ou "já jogou hoje")
 // Para adicionar um administrador: coloque o email corporativo em letras minúsculas
@@ -62,20 +59,22 @@ function getTodayBrasilia(): string {
   return new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
 }
 
-// Retorna uma chave de "dia" — real ou virtual (modo teste)
+// Em TEST_MODE: chave fixa por atividade (não depende de data/hora)
 function getDayKey(): string {
-  if (TEST_MODE) {
-    const elapsed = Math.floor(Date.now() / TEST_WINDOW_MS) - TEST_CYCLE_OFFSET;
-    return `test_${elapsed}`;
-  }
+  if (TEST_MODE) return "test";
   return getTodayBrasilia();
 }
 
 function getCampaignDay(): number {
   if (TEST_MODE) {
-    const elapsed = Math.floor(Date.now() / TEST_WINDOW_MS) - TEST_CYCLE_OFFSET;
-    if (elapsed >= 3) return -1; // campanha encerrada após o Dia 3
-    return elapsed + 1; // 1 → 2 → 3
+    // Dia avança conforme atividades concluídas — sem espera
+    const j = localStorage.getItem("maio26_jogo_test") === "done";
+    const q = localStorage.getItem("maio26_quiz_test") === "done";
+    const v = localStorage.getItem("maio26_vof_test") === "done";
+    if (v) return -1;
+    if (q) return 3;
+    if (j) return 2;
+    return 1;
   }
   const today = getTodayBrasilia();
   const startMs = new Date(CAMPAIGN_START + "T12:00:00-03:00").getTime();
@@ -310,7 +309,6 @@ export default function Home() {
   const [loginMode, setLoginMode] = useState<"first-access" | "email-only" | "auto-login">("first-access");
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [testCountdown, setTestCountdown] = useState(0); // segundos até próxima troca (TEST_MODE)
 
   // Game state
   const [lives, setLives] = useState(MAX_LIVES);
@@ -379,25 +377,6 @@ export default function Home() {
       }
     };
     initializeLogin();
-  }, []);
-
-  // TEST_MODE: ticker a cada segundo — atualiza dia e contador regressivo
-  useEffect(() => {
-    if (!TEST_MODE) return;
-    const tick = () => {
-      const msElapsed = Date.now() % TEST_WINDOW_MS;
-      const remaining = Math.ceil((TEST_WINDOW_MS - msElapsed) / 1000);
-      setTestCountdown(remaining);
-      setCampaignDay(getCampaignDay());
-      setPlayedToday({
-        jogo: wasPlayedToday("jogo"),
-        quiz: wasPlayedToday("quiz"),
-        vof: wasPlayedToday("vof"),
-      });
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
   }, []);
 
   // Atualizar estado da campanha e pontuação ao entrar no menu
@@ -1463,9 +1442,6 @@ export default function Home() {
           {inCampaign && (
             <div className="campaign-banner campaign-active">
               {`Missão ${campaignDay} de 3 — ${campaignDay === 1 ? "Jogo" : campaignDay === 2 ? "Quiz" : "V ou F"}`}
-              {TEST_MODE && (
-                <span className="test-countdown"> · próxima em {Math.floor(testCountdown / 60)}:{String(testCountdown % 60).padStart(2, "0")}</span>
-              )}
             </div>
           )}
           {campaignDay === -1 && (
