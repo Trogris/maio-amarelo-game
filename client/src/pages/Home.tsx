@@ -44,6 +44,8 @@ const CAMPAIGN_START = "2026-05-15"; // formato YYYY-MM-DD
 // Defina como false antes de ir para produção
 const TEST_MODE = true;
 const TEST_WINDOW_MS = 5 * 60 * 1000; // 5 minutos
+// Offset calculado no carregamento da página → garante que agora = Dia 1
+const TEST_CYCLE_OFFSET = Math.floor(Date.now() / TEST_WINDOW_MS);
 
 // ADMIN: emails com acesso irrestrito para testes (sem restrição de dia ou "já jogou hoje")
 // Para adicionar um administrador: coloque o email corporativo em letras minúsculas
@@ -63,15 +65,16 @@ function getTodayBrasilia(): string {
 // Retorna uma chave de "dia" — real ou virtual (modo teste)
 function getDayKey(): string {
   if (TEST_MODE) {
-    return `test_${Math.floor(Date.now() / TEST_WINDOW_MS)}`;
+    const elapsed = Math.floor(Date.now() / TEST_WINDOW_MS) - TEST_CYCLE_OFFSET;
+    return `test_${elapsed}`;
   }
   return getTodayBrasilia();
 }
 
 function getCampaignDay(): number {
   if (TEST_MODE) {
-    const window = Math.floor(Date.now() / TEST_WINDOW_MS);
-    return (window % 3) + 1; // cicla 1 → 2 → 3 → 1 → ...
+    const elapsed = Math.floor(Date.now() / TEST_WINDOW_MS) - TEST_CYCLE_OFFSET;
+    return (elapsed % 3) + 1; // sempre começa em 1 ao carregar a página
   }
   const today = getTodayBrasilia();
   const startMs = new Date(CAMPAIGN_START + "T12:00:00-03:00").getTime();
