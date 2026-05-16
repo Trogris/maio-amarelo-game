@@ -299,7 +299,7 @@ function generateLane(row: number, difficulty: number, crosswalkStart: number = 
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [gameState, setGameState] = useState<"login" | "menu" | "playing" | "gameover" | "won" | "quiz" | "ranking" | "trueorfalse" | "played-today">("login");
+  const [gameState, setGameState] = useState<"login" | "menu" | "playing" | "gameover" | "won" | "quiz" | "ranking" | "trueorfalse" | "played-today" | "campaign-complete">("login");
   const [campaignDay, setCampaignDay] = useState(() => getCampaignDay());
   const [playedToday, setPlayedToday] = useState({ jogo: false, quiz: false, vof: false });
   const [playedTodayInfo, setPlayedTodayInfo] = useState<{ activity: string; score: number } | null>(null);
@@ -1550,8 +1550,61 @@ export default function Home() {
         const updated = await getPlayerByEmail(email);
         if (updated) setCurrentPlayer(updated);
       }
-      setGameState("menu");
+      // Dia 3 concluído → tela de encerramento da campanha
+      if (getCampaignDay() === 3) {
+        setGameState("campaign-complete");
+      } else {
+        setGameState("menu");
+      }
     }} />;
+  }
+
+  // ============================================================
+  // TELA DE ENCERRAMENTO DA CAMPANHA
+  // ============================================================
+  if (gameState === "campaign-complete") {
+    return (
+      <div className="game-container menu-screen">
+        <div className="menu-content">
+          <div className="campaign-complete-card">
+            <div className="campaign-complete-trophy">🏆</div>
+            <h2 className="campaign-complete-title">Campanha Concluída!</h2>
+            <p className="campaign-complete-subtitle">
+              Você completou os 3 dias do Maio Amarelo.<br />Obrigado por participar!
+            </p>
+
+            <div className="campaign-complete-scores">
+              <div className="complete-score-row">
+                <span className="complete-score-label">Dia 1 — Jogo</span>
+                <span className="complete-score-value">{(currentPlayer?.gameScore || 0).toLocaleString('pt-BR')} pts</span>
+              </div>
+              <div className="complete-score-row">
+                <span className="complete-score-label">Dia 2 — Quiz</span>
+                <span className="complete-score-value">{(currentPlayer?.quizScore || 0).toLocaleString('pt-BR')} pts</span>
+              </div>
+              <div className="complete-score-row">
+                <span className="complete-score-label">Dia 3 — V ou F</span>
+                <span className="complete-score-value">{(currentPlayer?.vofScore || 0).toLocaleString('pt-BR')} pts</span>
+              </div>
+            </div>
+
+            <div className="campaign-complete-total">
+              <span className="complete-total-label">Pontuação Total</span>
+              <span className="complete-total-value">{(currentPlayer?.totalScore || 0).toLocaleString('pt-BR')}</span>
+              <span className="complete-total-unit">pontos</span>
+            </div>
+
+            <button className="btn-ranking" onClick={openRanking}>VER RANKING</button>
+          </div>
+        </div>
+        <div className="menu-bg-overlay" />
+        <img
+          src="https://d2xsxph8kpxj0f.cloudfront.net/310419663031119109/YnbKJJLfGRS8NCpXrb5yB2/hero-banner-hskNyNjFFvT94kqkpvuQKb.webp"
+          alt=""
+          className="menu-bg-image"
+        />
+      </div>
+    );
   }
 
   // ============================================================

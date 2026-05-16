@@ -200,7 +200,6 @@ export default function TrueOrFalseGame({ player, onExit }: Props) {
           )}
 
           <div className="tf-buttons">
-            <button className="btn-play" onClick={restart}>JOGAR NOVAMENTE</button>
             <button className="btn-quiz" onClick={onExit}>VOLTAR AO MENU</button>
           </div>
         </div>
