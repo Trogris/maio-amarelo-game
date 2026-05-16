@@ -171,6 +171,11 @@ export async function getOrCreatePlayer(
   }
 }
 
+// Limites máximos de pontuação por atividade (proteção contra manipulação)
+const MAX_GAME_SCORE  = 5000;  // jogo: ~40 ruas × moedas + bônus de vidas
+const MAX_QUIZ_SCORE  = 1100;  // quiz: 11 perguntas × 100 pts
+const MAX_VOF_SCORE   = 1000;  // V ou F: 10 perguntas × 100 pts
+
 // Atualizar pontuação do jogo (manter a maior)
 export async function updateGameScore(
   playerId: number,
@@ -185,7 +190,8 @@ export async function updateGameScore(
 
     if (selectError || !player) return null;
 
-    const newGameScore = Math.max(score, player.pontuacao_jogo ?? 0);
+    const clampedScore = Math.min(Math.max(0, score), MAX_GAME_SCORE);
+    const newGameScore = Math.max(clampedScore, player.pontuacao_jogo ?? 0);
     const newTotal = newGameScore + (player.pontuacao_quiz ?? 0) + (player.pontuacao_vof ?? 0);
 
     const { data: updated, error: updateError } = await supabase
@@ -197,6 +203,7 @@ export async function updateGameScore(
 
     if (updateError) { console.error("Erro ao atualizar pontuação do jogo:", updateError); return null; }
     return mapRow(updated);
+
   } catch (error) {
     console.error("Erro na função updateGameScore:", error);
     return null;
@@ -217,7 +224,8 @@ export async function updateQuizScore(
 
     if (selectError || !player) return null;
 
-    const newQuizScore = Math.max(score, player.pontuacao_quiz ?? 0);
+    const clampedScore = Math.min(Math.max(0, score), MAX_QUIZ_SCORE);
+    const newQuizScore = Math.max(clampedScore, player.pontuacao_quiz ?? 0);
     const newTotal = (player.pontuacao_jogo ?? 0) + newQuizScore + (player.pontuacao_vof ?? 0);
 
     const { data: updated, error: updateError } = await supabase
@@ -249,7 +257,8 @@ export async function updateVofScore(
 
     if (selectError || !player) return null;
 
-    const newVofScore = Math.max(score, player.pontuacao_vof ?? 0);
+    const clampedScore = Math.min(Math.max(0, score), MAX_VOF_SCORE);
+    const newVofScore = Math.max(clampedScore, player.pontuacao_vof ?? 0);
     const newTotal = (player.pontuacao_jogo ?? 0) + (player.pontuacao_quiz ?? 0) + newVofScore;
 
     const { data: updated, error: updateError } = await supabase

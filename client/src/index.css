@@ -535,8 +535,11 @@
 
 .menu-stats {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1rem;
   margin: 0.5rem 0;
+  width: 100%;
 }
 
 .stat {
@@ -548,6 +551,8 @@
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .stat-label {
@@ -777,11 +782,50 @@
   overflow-y: auto;
 }
 
+.ranking-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.75rem;
+}
+
 .ranking-title {
   font-size: 2rem;
   font-weight: 900;
   color: #FDD835;
   margin: 0;
+}
+
+/* Badge "AO VIVO" no ranking */
+.ranking-live-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(229, 57, 53, 0.18);
+  border: 1px solid rgba(229, 57, 53, 0.5);
+  color: #ef5350;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef5350;
+  animation: livePulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
 }
 
 .podium {

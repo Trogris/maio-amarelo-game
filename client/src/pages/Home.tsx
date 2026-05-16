@@ -40,8 +40,11 @@ const SAFETY_MESSAGES = [
 // ============================================================
 const CAMPAIGN_START = "2026-05-15"; // formato YYYY-MM-DD
 
-// ADMIN: emails com acesso irrestrito para testes
-const ADMIN_EMAILS: string[] = [];
+// ADMIN: emails com acesso irrestrito para testes (sem restrição de dia ou "já jogou hoje")
+// Para adicionar um administrador: coloque o email corporativo em letras minúsculas
+const ADMIN_EMAILS: string[] = [
+  // "charles.andrade@suaempresa.com.br",  // descomente e ajuste com o email real
+];
 
 function isAdmin(email: string | null | undefined): boolean {
   if (!email) return false;
@@ -374,6 +377,22 @@ export default function Home() {
       }
     }
   }, [gameState]);
+
+  // Ranking em tempo real — atualiza a cada 30 segundos enquanto a tela estiver aberta
+  useEffect(() => {
+    if (gameState !== "ranking") return;
+    const refresh = () => {
+      getRanking().then(allPlayers => {
+        setRanking(allPlayers);
+        if (currentPlayer) {
+          const rank = allPlayers.findIndex(p => p.id === currentPlayer.id) + 1;
+          setPlayerRank(rank > 0 ? rank : 0);
+        }
+      }).catch(console.error);
+    };
+    const interval = setInterval(refresh, 30000);
+    return () => clearInterval(interval);
+  }, [gameState, currentPlayer]);
 
   const handleActivityClick = (activity: "jogo" | "quiz" | "vof") => {
     const admin = isAdmin(currentPlayer?.email);
@@ -1187,13 +1206,16 @@ export default function Home() {
     setGameState("ranking");
   };
 
-  const quitGame = useCallback(() => {
+  const quitGame = useCallback(async () => {
     gameActiveRef.current = false;
     if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
     explosionRef.current = null;
     const finalScore = scoreRef.current + collectedItemsRef.current * 25;
     if (currentPlayerRef.current) {
-      updateGameScore(currentPlayerRef.current.id, finalScore).then(updated => { if (updated) setCurrentPlayer(updated); }).catch(console.error);
+      try {
+        const updated = await updateGameScore(currentPlayerRef.current.id, finalScore);
+        if (updated) setCurrentPlayer(updated);
+      } catch (e) { console.error(e); }
     }
     markPlayedToday("jogo");
     setGameState("menu");
@@ -1201,8 +1223,10 @@ export default function Home() {
 
   const finishQuiz = async () => {
     if (currentPlayer) {
-      const updated = await updateQuizScore(currentPlayer.id, quizScore);
-      if (updated) setCurrentPlayer(updated);
+      try {
+        const updated = await updateQuizScore(currentPlayer.id, quizScore);
+        if (updated) setCurrentPlayer(updated);
+      } catch (e) { console.error(e); }
     }
     markPlayedToday("quiz");
     setGameState("menu");
@@ -1491,7 +1515,13 @@ export default function Home() {
     return (
       <div className="game-container ranking-screen">
         <div className="ranking-content">
-          <h2 className="ranking-title">Ranking Geral</h2>
+          <div className="ranking-header-row">
+            <h2 className="ranking-title">Ranking Geral</h2>
+            <div className="ranking-live-badge">
+              <span className="live-dot" />
+              AO VIVO
+            </div>
+          </div>
 
           <div className="podium">
             {ranking.length > 1 && (
