@@ -1768,7 +1768,7 @@ export default function Home() {
           <p className="game-result-msg" style={{ color: "#66BB6A" }}>
             {score >= 2000
               ? "Incrível! Pontuação máxima! Você é um mestre do trânsito seguro!"
-              : "Excelente! Missão completa com chave de ouro!"}
+              : "Excelente! Missão cumprida!"}
           </p>
           <div className="gameover-buttons">
             <button className="btn-play" onClick={() => handleActivityClick("jogo")}>
